@@ -1,3 +1,4 @@
+#!/bin/bash
 #Set CALIB_DIR to directory of calibration you want to format
 CALIB_DIR='/Users/Ben/Desktop/csc420/project/data_road/training/calib/';
 #P Matrices
