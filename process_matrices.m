@@ -1,4 +1,4 @@
-ssing Camera Matrices
+%Processing Camera Matrices
 clear all; close all;
 CALIB_DIR='/Users/Ben/Desktop/csc420/project/data_road/training/calib/'
 
