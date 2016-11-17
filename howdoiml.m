@@ -16,6 +16,10 @@ for i=1:size(c,1)
 end
 
 [idx,C] = kmeans(cv,2);
+%take the weighted sum of the pre-segmented training image 
+%classify based on the aggregate pixel value - 
+%maybe instead of a binary classification scheme, a ternary scheme would 
+%be better (partials)
 
 model = fitcsvm(cv,idx);
 
