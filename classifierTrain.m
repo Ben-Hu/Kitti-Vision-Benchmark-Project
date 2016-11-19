@@ -1,28 +1,28 @@
-lassifier Training
+%% Classifier Training
 clear all; close all;
 
 %% Load training data-set
-testListing = dir(fullfile(TEST_DIR,'um_*.png'));
-trainListing = dir(fullfile(TRAIN_DIR,'um_road_*.png'));
+origListing = dir(fullfile(TRAIN_ORIG_DIR,'um_*.png'));
+segListing = dir(fullfile(TRAIN_SEG_DIR,'um_road_*.png'));
 
-testImgStack = zeros(370,1225);
-trainImgStack = zeros(370,1225);
+origImgStack = zeros(370,1225);
+segImgStack = zeros(370,1225);
 
-for i=1:size(testListing,1)
-    cImg = rgb2gray(single(imread(fullfile(TEST_DIR,testListing(i).name)))/255);
+for i=1:size(origListing,1)
+    cImg = rgb2gray(single(imread(fullfile(TEST_DIR,origListing(i).name)))/255);
     cImg = cImg(1:370,1:1225);
-    testImgStack = cat(3,testImgStack,cImg);    
+    origImgStack = cat(3,origImgStack,cImg);    
 end
 
-for i=1:size(trainListing,1)
-    cImg = single(imread(fullfile(TRAIN_DIR,trainListing(i).name)))/255;
+for i=1:size(segListing,1)
+    cImg = single(imread(fullfile(TRAIN_DIR,segListing(i).name)))/255;
     cImg = cImg(1:370,1:1225);
-    trainImgStack = cat(3,trainImgStack,cImg);
+    segImgStack = cat(3,segImgStack,cImg);
 end
 
 allCV = [];
-for k=1:size(testImgStack,3)
-    oimg = testImgStack(:,:,i);
+for k=1:size(origImgStack,3)
+    oimg = origImgStack(:,:,i);
     c = mat2cell(oimg, 37*ones(1,10), 25*ones(1,49));
     cv = zeros(size(c,1)*size(c,2),size(c{1,1},1)*size(c{1,1},2));
     
@@ -35,6 +35,8 @@ for k=1:size(testImgStack,3)
     allCV = cat(1,allCV,cv);
 end
 
+%Classify patches of testImgStack based on values of corresponding
+%segmented image in trainImgStack
 [idx,C] = kmeans(cv,2);
 %take the weighted sum of the pre-segmented training image 
 %classify based on the aggregate pixel value - 
