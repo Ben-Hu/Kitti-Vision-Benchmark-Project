@@ -1,10 +1,14 @@
 globals;
 
 % get disparity files
-disparityFiles = dir(DISPARITY_DIR);
+disparityFiles = dir(fullfile(DISPARITY_DIR,'*.png'));
+if size(disparityFiles,1) < 1
+   saveDisparity(R_TEST_DIR, TEST_DIR, DISPARITY_DIR);
+   disparityFiles = dir(fullfile(DISPARITY_DIR,'*.png'));  
+end
 
 % get depth for each disparity file
-for i=3:size(disparityFiles, 1)
+for i=1:size(disparityFiles, 1)
 
  % get disparity file and calibs associated
  disparity = double((imread([DISPARITY_DIR, disparityFiles(i).name])));
@@ -16,6 +20,7 @@ for i=3:size(disparityFiles, 1)
  depth = zeros(size(disparity, 1), size(disparity, 2));
  for m=1:size(disparity,1)
      for n=1 : size(disparity,2)
+         %Why not compute an entire image  (depthMap.m) instead of per pix
          depth(m,n) = depthFromDisparity(disparity(m,n), P0, P1);
      end
      
@@ -30,7 +35,5 @@ for i=3:size(disparityFiles, 1)
  % visualisation
  depth = log(depth*50) *5;
  imwrite(double(depth), colormap('jet'), strcat(DEPTH_DIR, disparityFiles(i).name));
-
-  
 end
 

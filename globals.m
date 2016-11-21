@@ -5,7 +5,7 @@ TEST_DIR=fullfile(DATA_DIR,'data_road/testing/image_2');
 TEST_CALIB_DIR=fullfile(DATA_DIR,'data_road/testing/calib');
 
 TRAIN_ORIG_DIR=fullfile(DATA_DIR,'data_road/training/image_2');
-TRAIN__SEG_DIR=fullfile(DATA_DIR,'data_road/training/gt_image_2');
+TRAIN_SEG_DIR=fullfile(DATA_DIR,'data_road/training/gt_image_2');
 TRAIN_CALIB_DIR=fullfile(DATA_DIR,'data_road/training/calib/');
 
 %Right Image Set

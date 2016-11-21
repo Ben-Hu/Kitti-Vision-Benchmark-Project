@@ -1,1 +1,8 @@
 .DS_Store
+data_road/*
+data_road_gray/*
+data_road_right/*
+models_lsvm/*
+voc-release5/*
+matconvnet/*
+*.m~

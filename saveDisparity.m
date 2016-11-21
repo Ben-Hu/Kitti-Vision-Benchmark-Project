@@ -1,5 +1,4 @@
 function [ ] = saveDisparity( dir1, dir2, dirTarget )
-
 %SAVEDISPARITY saves disparity between images in two directories in
 %dirTarget
 %   Given matching images in dir1 and dir2, saves their disparities in
