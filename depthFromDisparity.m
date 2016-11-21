@@ -16,10 +16,9 @@ baseline = abs(dFrom1 - dFrom2);
 
 % The cameras used by KITTI are Flea2 models. In particular these:
 % https://www.ptgrey.com/flea2-14-mp-mono-firewire-1394b-sony-icx267-camera
-% given the width of the flea model, we can get real-world focal length in
-% meters by F = focalInPixels * sensorWidth/pixelWidth
+% get focal length in pixels
 
-focalLength = P1(1,1) * 35 / 1032;
+focalLength = P1(1,1);
 
 % finally get depth for this point
 depth = focalLength * baseline / disparity;

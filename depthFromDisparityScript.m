@@ -11,9 +11,14 @@ disparityFiles = dir(pathToDisparity);
 % get depth for each disparity file
 for i=3:size(disparityFiles, 1)
 
+    %P = getMatrix(TRAIN_CALIB_DIR,'P0','um_000000');
+
+    
+    
  % get disparity file and calibs associated
  disparity = double((imread([pathToDisparity, disparityFiles(i).name])));
- [P0, P1] = getCalib([pathToCalib, disparityFiles(i).name(1:end-3), 'txt'], 1,2);
+ P0 = getMatrix(pathToCalib,'P0',disparityFiles(i).name(1:end-4));
+ P1 = getMatrix(pathToCalib,'P1',disparityFiles(i).name(1:end-4));
  
  depth = zeros(size(disparity, 1), size(disparity, 2));
  for m=1:size(disparity,1)
@@ -24,7 +29,8 @@ for i=3:size(disparityFiles, 1)
  end
  
  % Some correction to account for infinities and normalize a little to get
- % a better visual result. Comment this section out for raw data s = sort(unique(depth));
+ % a better visual result. Comment this section out for raw data 
+ s = sort(unique(depth));
  depth(depth==inf) = s(end-1)+ 40;
  
  % I found the below operations to give a reasonable result for
