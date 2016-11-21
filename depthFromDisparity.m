@@ -1,10 +1,10 @@
-function [ depth ] = depthFromDisparity( disparity, P1, P2)
+function [ depth ] = depthFromDisparity(disparity, P1, P2)
 %DEPTHFROMDISPARITY returns depth of a point given disparity
 %and camera calibrations for the pair of cameras
 % Requires art.m
 %   ex: depthFromDisparity(disparity, P1, P2
 
-[K1, ~, ~] = KRt_from_P(P1);
+[K1, ~, ~] = Krt_from_P(P1);
 
 % get distances from camera 0. note that all cameras are parallel, and some
 % distances are negative to account for direction
