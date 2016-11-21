@@ -3,7 +3,13 @@ clear all; close all;
 globals;
 %360x1220, 20x20 window
 
-%% Load training data-set
+%% Load training data- + preprocess
+% Pre-smooth the image
+im = vl_imsmooth(im,3) ;
+
+% Subtract median value
+im = im - median(im(:)) ;
+
 trainAll = 1;
 if trainAll
     origListing = dir(fullfile(TRAIN_ORIG_DIR,'um_000000.png'));

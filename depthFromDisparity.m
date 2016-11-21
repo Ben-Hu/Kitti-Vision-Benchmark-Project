@@ -4,6 +4,8 @@ function [ depth ] = depthFromDisparity( disparity, P1, P2)
 % Requires art.m
 %   ex: depthFromDisparity(disparity, P1, P2
 
+[K1, ~, ~] = KRt_from_P(P1);
+
 % get distances from camera 0. note that all cameras are parallel, and some
 % distances are negative to account for direction
 % (KITTI stores the value -Fx * baseline in position 1,4
@@ -18,7 +20,7 @@ baseline = abs(dFrom1 - dFrom2);
 % https://www.ptgrey.com/flea2-14-mp-mono-firewire-1394b-sony-icx267-camera
 % get focal length in pixels
 
-focalLength = P1(1,1);
+focalLength = K1(1,1);
 
 % finally get depth for this point
 depth = focalLength * baseline / disparity;

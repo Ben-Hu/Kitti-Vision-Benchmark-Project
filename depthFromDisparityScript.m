@@ -1,24 +1,17 @@
-% setup paths
-pathToDisparity =  'disparityTraining/';
-pathToCalib = 'data_road/training/calib/';
-dirTarget = 'depthTraining/';
+globals;
 
 % get disparity files
-disparityFiles = dir(pathToDisparity);
-
-% get calibration matrices
+disparityFiles = dir(DISPARITY_DIR);
 
 % get depth for each disparity file
 for i=3:size(disparityFiles, 1)
 
-    %P = getMatrix(TRAIN_CALIB_DIR,'P0','um_000000');
-
-    
-    
  % get disparity file and calibs associated
- disparity = double((imread([pathToDisparity, disparityFiles(i).name])));
- P0 = getMatrix(pathToCalib,'P0',disparityFiles(i).name(1:end-4));
- P1 = getMatrix(pathToCalib,'P1',disparityFiles(i).name(1:end-4));
+ disparity = double((imread([DISPARITY_DIR, disparityFiles(i).name])));
+ 
+ % get calibration matrices
+ P0 = getMatrix(TRAIN_CALIB_DIR,'P2',disparityFiles(i).name(1:end-4));
+ P1 = getMatrix(TRAIN_CALIB_DIR,'P3',disparityFiles(i).name(1:end-4));
  
  depth = zeros(size(disparity, 1), size(disparity, 2));
  for m=1:size(disparity,1)
@@ -36,7 +29,7 @@ for i=3:size(disparityFiles, 1)
  % I found the below operations to give a reasonable result for
  % visualisation
  depth = log(depth*50) *5;
- imwrite(double(depth), colormap('jet'), strcat(dirTarget, disparityFiles(i).name));
+ imwrite(double(depth), colormap('jet'), strcat(DEPTH_DIR, disparityFiles(i).name));
 
   
 end
