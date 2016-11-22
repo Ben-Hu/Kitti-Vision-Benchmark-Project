@@ -1,14 +1,12 @@
 %% Classifier Training
 clear all; close all;
 globals;
+run ~/Desktop/vlfeat-0.9.20/toolbox/vl_setup.m
+addpath(genpath('libsvm'));
+
 %360x1220, 20x20 window
 
 %% Load training data- + preprocess
-% Pre-smooth the image
-im = vl_imsmooth(im,3) ;
-
-% Subtract median value
-im = im - median(im(:)) ;
 
 trainAll = 1;
 if trainAll
@@ -26,13 +24,13 @@ segImgStack = []; %zeros(360,1220);
 
 for i=1:size(origListing,1)
     cImg = rgb2gray(single(imread(fullfile(TRAIN_ORIG_DIR,origListing(i).name)))/255);
-    cImg = cImg(1:360,1:1220);
+    cImg = conv2(cImg(1:360,1:1220),fspecial('Gaussian', [25,25], 0.5), 'same');
     origImgStack = cat(3,origImgStack,cImg);    
 end
 
 for i=1:size(segListing,1)
     cImg = rgb2gray(single(imread(fullfile(TRAIN_SEG_DIR,segListing(i).name)))/255);
-    cImg = cImg(1:360,1:1220);
+    cImg = conv2(cImg(1:360,1:1220),fspecial('Gaussian', [25,25], 0.5), 'same');
     segImgStack = cat(3,segImgStack,cImg);
 end
 
@@ -49,7 +47,7 @@ for k=1:size(origImgStack,3)
     cs = mat2cell(smask, 20*ones(1,18), 20*ones(1,61));
     cvs = zeros(size(cs,1)*size(cs,2),size(cs{1,1},1)*size(cs{1,1},2));
     sMax = 1 * 20 * 20; %rPixVal * 20 * 20;
-    %sum min = 0;
+
     maxcSum = 0;
     numClass1 = 0;
     %each row of cv corresponds to a vectorized image patch
@@ -79,36 +77,59 @@ end
 
 [idx,C] = kmeans(cv,2);
 
-model = fitcsvm(cv,idx);
-model2 = fitcsvm(allCV,idxS);
+%model = fitcsvm(cv,idx);
+%model2 = fitcsvm(allCV,idxS);
+model = svmtrain(idxS,allCV,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
+
 
 % divide a test image with window fn
 xval = rgb2gray(double(imread(fullfile(TRAIN_ORIG_DIR,'um_000000.png')))/255);
 %xval = rgb2gray(double(imread('data_road/testing/image_2/um_000031.png'))/255);
 xval = xval(1:360,1:1220);
-xc = mat2cell(xval, 20*ones(1,18), 20*ones(1,61));
-xcv = zeros(size(xc,1)*size(xc,2),size(xc{1,1},1)*size(xc{1,1},2));
+% xc = mat2cell(xval, 20*ones(1,18), 20*ones(1,61));
+% xcv = zeros(size(xc,1)*size(xc,2),size(xc{1,1},1)*size(xc{1,1},2));
+% 
+% % make vectors from window patches
+% for i=1:size(xc,1)
+%     for j=1:size(xc,2)
+%         xcv(i*j,:) = reshape(xc{i,j},1,[]);
+%     end
+% end
+% 
+% %for each vector in xcv (image patch, classify it)
+% %labels = predict(model2,xcv)
+% labels=[];
+% for i=1:size(xcv,1)
+%     [svmOut, svmACC, svm_dec] = svmpredict(1,xcv(i,:),model,'-b 1');
+%     labels=cat(1,labels,svmOut);
+% end
+% 
+% %now that all image patches are classified, assign label value to
+% %corresponding block and reconstruct the image
+% for ind=1:size(labels,1)
+%     [i,j] = ind2sub([size(c,1),size(c,2)],ind);
+%     c{i,j}(:,:) = labels(ind);
+% end
+% res = cell2mat(c);
 
-% make vectors from window patches
-for i=1:size(xc,1)
-    for j=1:size(xc,2)
-        xcv(i*j,:) = reshape(xc{i,j},1,[]);
+classified = zeros(size(xval));
+scored = zeros(size(xval));
+k = 11;
+for xp = 1:size(xval,1)
+    for yp = 1:size(xval,2)
+        imgPatch = getPatch(xval,xp,yp,k);
+        imgPatch = reshape(imgPatch,1,[]);
+        [svmOut, svmACC,svm_dec] = svmpredict(1,imgPatch,model,'-b 1');
+        classified(xp,yp) = svm_dec(2);
+        scored(xp,yp) = svmOut;
     end
 end
 
-%for each vector in xcv (image patch, classify it)
-labels = predict(model2,xcv);
+figure;imagesc(classified);axis image;colormap gray;
+figure;imagesc(scored);axis image;colormap gray;
 
 
-%now that all image patches are classified, assign label value to
-%corresponding block and reconstruct the image
-for ind=1:size(labels,1)
-    [i,j] = ind2sub([size(c,1),size(c,2)],ind);
-    c{i,j}(:,:) = labels(ind);
-end
-res = cell2mat(c);
-
-figure; imagesc(res); axis image; colormap gray;
+%figure; imagesc(res); axis image; colormap gray;
 
 
 
