@@ -5,4 +5,5 @@ data_road_right/*
 models_lsvm/*
 voc-release5/*
 matconvnet/*
+libsvm/*
 *.m~
