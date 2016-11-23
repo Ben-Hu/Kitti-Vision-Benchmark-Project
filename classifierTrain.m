@@ -4,89 +4,107 @@ globals;
 run ~/Desktop/vlfeat-0.9.20/toolbox/vl_setup.m
 addpath(genpath('libsvm'));
 
+im_siz = [360,1220];
+window = [20,20];
+windowFac = [im_siz(1)/window(1),im_siz(2)/window(2)];
+
 %360x1220, 20x20 window
 
 %% Load training data- + preprocess
-
-trainAll = 1;
-if trainAll
+trainingSet = 0;
+if trainingSet == 0
     origListing = dir(fullfile(TRAIN_ORIG_DIR,'um_000000.png'));
     segListing = dir(fullfile(TRAIN_SEG_DIR,'um_road_000000.png'));
-    %origListing = dir(fullfile(TRAIN_ORIG_DIR,'*.png'));
-    %segListing = dir(fullfile(TRAIN_SEG_DIR,'*road_*.png'));
-else
+elseif trainingSet == 1    
     origListing = dir(fullfile(TRAIN_ORIG_DIR,'um_*.png'));
     segListing = dir(fullfile(TRAIN_SEG_DIR,'um_road_*.png'));
+else
+    origListing = dir(fullfile(TRAIN_ORIG_DIR,'*.png'));
+    segListing = dir(fullfile(TRAIN_SEG_DIR,'*road_*.png'));
 end
 
-origImgStack = []; %zeros(360,1220);
-segImgStack = []; %zeros(360,1220);
+origImgStack = []; 
+segImgStack = []; 
 
 for i=1:size(origListing,1)
     cImg = rgb2gray(single(imread(fullfile(TRAIN_ORIG_DIR,origListing(i).name)))/255);
-    cImg = conv2(cImg(1:360,1:1220),fspecial('Gaussian', [25,25], 0.5), 'same');
+    %base smoothing
+    cImg = conv2(cImg(1:im_siz(1),1:im_siz(2)),fspecial('Gaussian', [25,25], 0.5), 'same');
     origImgStack = cat(3,origImgStack,cImg);    
 end
 
 for i=1:size(segListing,1)
     cImg = rgb2gray(single(imread(fullfile(TRAIN_SEG_DIR,segListing(i).name)))/255);
-    cImg = conv2(cImg(1:360,1:1220),fspecial('Gaussian', [25,25], 0.5), 'same');
+    %base smoothing
+    cImg = conv2(cImg(1:im_siz(1),1:im_siz(2)),fspecial('Gaussian', [25,25], 0.5), 'same');
     segImgStack = cat(3,segImgStack,cImg);
 end
 
+%% Prepare training data for classifier
 allCV = [];
-idxS = []; %zeros(size(origImgStack,3),1);
+idxS = []; 
 for k=1:size(origImgStack,3)
+    %(pre)instantiations
     oimg = origImgStack(:,:,k);
-    c = mat2cell(oimg, 20*ones(1,18), 20*ones(1,61));
+    c = mat2cell(oimg, window(1)*ones(1,windowFac(1)), window(2)*ones(1,windowFac(2)));
     cv = zeros(size(c,1)*size(c,2),size(c{1,1},1)*size(c{1,1},2));
     
     simg = segImgStack(:,:,k);
     rPixVal = max(reshape(simg,1,[]));
     smask = simg(:,:) >= rPixVal;
-    cs = mat2cell(smask, 20*ones(1,18), 20*ones(1,61));
+    cs = mat2cell(smask, window(1)*ones(1,windowFac(1)), window(2)*ones(1,windowFac(2)));
     cvs = zeros(size(cs,1)*size(cs,2),size(cs{1,1},1)*size(cs{1,1},2));
-    sMax = 1 * 20 * 20; %rPixVal * 20 * 20;
-
+    sMax = 1 * window(1) * window(2); 
+    
     maxcSum = 0;
-    numClass1 = 0;
-    %each row of cv corresponds to a vectorized image patch
+    mincSum = inf;
+    numClassPos = 0;
+    numClassNeg = 0;
+    
+    %each row of cv corresponds to a vectorized image patch for cur image
     for i=1:size(c,1)
         for j=1:size(c,2)
             %for each image patch, add to the vector cumulation
             cv(i*j,:) = reshape(c{i,j},1,[]);
-            %classify each image patch based on smask sum val
-            %take the weighted sum of the pre-segmented training image 
-            %classify based on the aggregate pixel value - 
+            %normalize the image patch data
+            normFactor = max(abs(cv(i*j,:)));
+            cv(i*j,:) = cv(i*j,:)/normFactor;
+            %classify each image patch based on smask sum val:
+            %take the weighted sum of the ground truth segmentation mask &
+            %classify based on the aggregate pixel value within window area 
             cSum = sum(reshape(cs{i,j},1,[]));
-            %debug
-            if cSum > maxcSum
-                maxcSum = cSum
-            end
             
-            if cSum > sMax/2
+            if cSum > maxcSum
+                maxcSum = cSum;
+            end
+            if cSum < mincSum
+                mincSum = cSum;
+            end
+           
+            %May been to adjust threshold for classification, 
+            %1/2 road pix && balancing number of neg samples now
+            if cSum >= sMax/2 
                 idxS = cat(1,idxS,1);
-                numClass1 = numClass1+1;
-            else
-                idxS = cat(1,idxS,0);
+                numClassPos = numClassPos+1;
+            elseif (cSUm < sMax/2) && numClassNeg <= numClassPos
+                idxS = cat(1,idxS,-1);
+                numClassNeg = numClassNeg+1;
             end
         end
     end
     allCV = cat(1,allCV,cv);
 end
 
-[idx,C] = kmeans(cv,2);
-
-%model = fitcsvm(cv,idx);
-%model2 = fitcsvm(allCV,idxS);
+% [idxS,C] = kmeans(allCV,2);
+% model2 = fitcsvm(allCV,idxS);
 model = svmtrain(idxS,allCV,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 
-
+%% Testing the model
 % divide a test image with window fn
 xval = rgb2gray(double(imread(fullfile(TRAIN_ORIG_DIR,'um_000000.png')))/255);
 %xval = rgb2gray(double(imread('data_road/testing/image_2/um_000031.png'))/255);
-xval = xval(1:360,1:1220);
-% xc = mat2cell(xval, 20*ones(1,18), 20*ones(1,61));
+xval = xval(1:im_siz(1),1:im_siz(2));
+% xc = mat2cell(xval, 20*ones(1,windowFac(1)), 20*ones(1,windowFac(2)));
 % xcv = zeros(size(xc,1)*size(xc,2),size(xc{1,1},1)*size(xc{1,1},2));
 % 
 % % make vectors from window patches
@@ -112,6 +130,11 @@ xval = xval(1:360,1:1220);
 % end
 % res = cell2mat(c);
 
+% figure; imagesc(res); axis image; colormap gray;
+
+%may want to tune this to get better run time, e.g. classify pixel
+%groups depending on the amount of precision/accuracy wanted.
+
 classified = zeros(size(xval));
 scored = zeros(size(xval));
 k = 11;
@@ -128,6 +151,16 @@ end
 figure;imagesc(classified);axis image;colormap gray;
 figure;imagesc(scored);axis image;colormap gray;
 
+% - Check machine learning keys/parameters   
+% - try and get an even number of road/non-road training examples.
+    %-random sampling of features/patches accomplishes - statistical error
+    %-try diff features - e.g. sliding window lec. gradient orientation,
+    %etc. pix. vals 2d/3d    
+% - SVM labels should be -1 +1 (apparently they hate 0,1 depending on library)
+% - Input data must be normalised
+% 	each columns of X should have a mean of 0 and a standard deviation of 1 (for example)
+% 	Or min value -1 max value +1
+% try decision forests - easier setup
 
 %figure; imagesc(res); axis image; colormap gray;
 
