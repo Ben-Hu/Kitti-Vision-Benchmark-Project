@@ -41,31 +41,26 @@
        % take the dot product of the normal and any of our points to get a
        % function that describes this plane
        planeFunction = dot(normal, p-p1);
-       
-       % reset the number of agreements this planeFunction recieved
-       agree = 0;
-       
+              
        % iterate through the bounding box and find how many points agree
        % with our plane
        % *NOTE* recall that matlab is weird about coords, hence the
        % inversion of coords here. 
-       for n=ytop:ybottom
-             for m=xleft:xright
-                 % grab the 3D point
-                curP = [n,m,depth(n,m)];
-                
-                % project that point onto our plane function. Points that
-                % lie on the plane should have dist == 0
-                dist = subs(planeFunction, p, curP);
-                dist = double(dist);
-                
-                % check if this point is close to our plane (modify
-                % threshold to tweak for particular results)
-                if(-threshold < dist < threshold) 
-                   agree = agree + 1; 
-                end
-             end
-       end
+           
+       
+       [X, Y] = meshgrid((xleft:xright), (ybottom:ytop));
+
+
+       % create a matrix of points and their boolean agreement
+       agreeM = arrayfun(@(x, y, z) getAgreement(x, y, z, pf) ,...
+           reshape(X.',1, numel(X)),...
+           reshape(Y.', 1, numel(Y)),...
+           reshape(depth.', 1, numel(depth)),...
+           planefunction);
+       
+       % the sum of the agreement matrix is this plane's score
+       agree = sum(agreeM);
+      
        
        % if we beat our best number of agreements, make this our best
        if (agree > bestAgree)
