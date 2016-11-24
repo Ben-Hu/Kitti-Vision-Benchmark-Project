@@ -6,6 +6,4 @@ models_lsvm/*
 voc-release5/*
 matconvnet/*
 libsvm/*
-vlfeat*/*
 *.m~
-*.asv
