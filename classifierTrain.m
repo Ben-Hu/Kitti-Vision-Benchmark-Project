@@ -150,20 +150,20 @@ xval = xval(1:im_siz(1),1:im_siz(2));
 %groups depending on the amount of precision/accuracy wanted.
 
 classified = zeros(size(xval));
-scored = zeros(size(xval));
+%scored = zeros(size(xval));
 k = 10;
 for xp = 1:size(xval,1)
     for yp = 1:size(xval,2)
         imgPatch = getPatch(xval,xp,yp,k);
         imgPatch = reshape(imgPatch,1,[]);
         [svmOut, svmACC,svm_dec] = svmpredict(1,imgPatch,model,'-b 0 -q');
-        classified(xp,yp) = svm_dec(2);
-        scored(xp,yp) = svmOut;
+        classified(xp,yp) = svmOut;
+        %scored(xp,yp) = svm_dec(2);
     end
 end
 
 figure;imagesc(classified);axis image;colormap gray;
-figure;imagesc(scored);axis image;colormap gray;
+%figure;imagesc(scored);axis image;colormap gray;
 
 % - Check machine learning keys/parameters   
 % - try and get an even number of road/non-road training examples.

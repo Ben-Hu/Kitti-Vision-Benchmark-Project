@@ -7,5 +7,9 @@ voc-release5/*
 matconvnet/*
 libsvm/*
 vlfeat*/*
+spsstereo/*
+libelas/*
+results/*
+model.mat
 *.m~
 *.asv
