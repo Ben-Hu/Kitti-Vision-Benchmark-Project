@@ -1,17 +1,17 @@
 %% Classifier Training
 clear all; close all;
 globals;
-run ~/Desktop/vlfeat-0.9.20/toolbox/vl_setup.m
+run vlfeat-0.9.20/toolbox/vl_setup.m
 addpath(genpath('libsvm'));
 
 im_siz = [360,1220];
-window = [20,20];
+window = [10,10];
 windowFac = [im_siz(1)/window(1),im_siz(2)/window(2)];
 
 %360x1220, 20x20 window
 
 %% Load training data- + preprocess
-trainingSet = 0;
+trainingSet = 1;
 if trainingSet == 0
     origListing = dir(fullfile(TRAIN_ORIG_DIR,'um_000000.png'));
     segListing = dir(fullfile(TRAIN_SEG_DIR,'um_road_000000.png'));
@@ -27,14 +27,14 @@ origImgStack = [];
 segImgStack = []; 
 
 for i=1:size(origListing,1)
-    cImg = rgb2gray(single(imread(fullfile(TRAIN_ORIG_DIR,origListing(i).name)))/255);
+    cImg = rgb2gray(double(imread(fullfile(TRAIN_ORIG_DIR,origListing(i).name)))/255);
     %base smoothing
     cImg = conv2(cImg(1:im_siz(1),1:im_siz(2)),fspecial('Gaussian', [25,25], 0.5), 'same');
     origImgStack = cat(3,origImgStack,cImg);    
 end
 
 for i=1:size(segListing,1)
-    cImg = rgb2gray(single(imread(fullfile(TRAIN_SEG_DIR,segListing(i).name)))/255);
+    cImg = rgb2gray(double(imread(fullfile(TRAIN_SEG_DIR,segListing(i).name)))/255);
     %base smoothing
     cImg = conv2(cImg(1:im_siz(1),1:im_siz(2)),fspecial('Gaussian', [25,25], 0.5), 'same');
     segImgStack = cat(3,segImgStack,cImg);
@@ -42,33 +42,31 @@ end
 
 %% Prepare training data for classifier
 allCV = [];
-idxS = []; 
+idxS = [];
 for k=1:size(origImgStack,3)
     %(pre)instantiations
     oimg = origImgStack(:,:,k);
     c = mat2cell(oimg, window(1)*ones(1,windowFac(1)), window(2)*ones(1,windowFac(2)));
-    cv = zeros(size(c,1)*size(c,2),size(c{1,1},1)*size(c{1,1},2));
+    cvP = [];
+    cvN = [];
+    idxP = [];
+    idxN = [];
     
     simg = segImgStack(:,:,k);
     rPixVal = max(reshape(simg,1,[]));
     smask = simg(:,:) >= rPixVal;
     cs = mat2cell(smask, window(1)*ones(1,windowFac(1)), window(2)*ones(1,windowFac(2)));
-    cvs = zeros(size(cs,1)*size(cs,2),size(cs{1,1},1)*size(cs{1,1},2));
+    %cvs = zeros(size(cs,1)*size(cs,2),size(cs{1,1},1)*size(cs{1,1},2));
     sMax = 1 * window(1) * window(2); 
     
     maxcSum = 0;
     mincSum = inf;
-    numClassPos = 0;
-    numClassNeg = 0;
     
     %each row of cv corresponds to a vectorized image patch for cur image
     for i=1:size(c,1)
         for j=1:size(c,2)
             %for each image patch, add to the vector cumulation
-            cv(i*j,:) = reshape(c{i,j},1,[]);
             %normalize the image patch data
-            normFactor = max(abs(cv(i*j,:)));
-            cv(i*j,:) = cv(i*j,:)/normFactor;
             %classify each image patch based on smask sum val:
             %take the weighted sum of the ground truth segmentation mask &
             %classify based on the aggregate pixel value within window area 
@@ -84,14 +82,30 @@ for k=1:size(origImgStack,3)
             %May been to adjust threshold for classification, 
             %1/2 road pix && balancing number of neg samples now
             if cSum >= sMax/2 
-                idxS = cat(1,idxS,1);
-                numClassPos = numClassPos+1;
-            elseif (cSUm < sMax/2) && numClassNeg <= numClassPos
-                idxS = cat(1,idxS,-1);
-                numClassNeg = numClassNeg+1;
+                idxP = cat(1,idxP,1);
+                tcv = reshape(c{i,j},1,[]);
+                normFactor = max(abs(tcv));
+                cvP = cat(1,cvP,tcv/normFactor);
+            else
+                idxN = cat(1,idxN,-1);
+                tcv = reshape(c{i,j},1,[]);
+                normFactor = max(abs(tcv));
+                cvN = cat(1,cvN,tcv/normFactor);
             end
         end
     end
+    %equalize neg & pos training samples if needed
+    if size(cvN,1) > size(cvP,1)
+        negSample = randsample(size(cvN,1),size(cvP,1));
+        cvN = cvN(negSample(:),:);
+        idxN = idxN(negSample(:),:);
+    elseif size(cvP,1) > size(cvN,1)
+        posSample = randsample(size(cvP,1),size(cvN,1));
+        cvP = cvP(posSample(:),:);  
+        idxP = idxP(posSample(:),:);
+    end
+    idxS = cat(1,idxS,cat(1,idxP,idxN));
+    cv = cat(1,cvP,cvN);
     allCV = cat(1,allCV,cv);
 end
 
@@ -137,12 +151,12 @@ xval = xval(1:im_siz(1),1:im_siz(2));
 
 classified = zeros(size(xval));
 scored = zeros(size(xval));
-k = 11;
+k = 10;
 for xp = 1:size(xval,1)
     for yp = 1:size(xval,2)
         imgPatch = getPatch(xval,xp,yp,k);
         imgPatch = reshape(imgPatch,1,[]);
-        [svmOut, svmACC,svm_dec] = svmpredict(1,imgPatch,model,'-b 1');
+        [svmOut, svmACC,svm_dec] = svmpredict(1,imgPatch,model,'-b 0 -q');
         classified(xp,yp) = svm_dec(2);
         scored(xp,yp) = svmOut;
     end
