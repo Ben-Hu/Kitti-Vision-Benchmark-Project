@@ -71,7 +71,14 @@ for k=1:size(origImgStack,3)
             %take the weighted sum of the ground truth segmentation mask &
             %classify based on the aggregate pixel value within window area 
             cSum = sum(reshape(cs{i,j},1,[]));
+            %TODO: process each cell into a HOG feature cell 
+            %result will be much better and more invariant to raw value
+            %changes
+            %TODO: filter number of cells to process to decrease training
+            %time - probably not worth implementing this
             
+            %HoG cpp for mex compilation to get started
+            %https://www.mathworks.com/matlabcentral/fileexchange/33863-histograms-of-oriented-gradients
             if cSum > maxcSum
                 maxcSum = cSum;
             end
