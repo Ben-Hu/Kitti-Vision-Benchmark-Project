@@ -5,7 +5,7 @@ run vlfeat-0.9.20/toolbox/vl_setup.m
 addpath(genpath('libsvm'));
 
 im_siz = [360,1220];
-window = [10,10];
+window = [20,20];
 windowFac = [im_siz(1)/window(1),im_siz(2)/window(2)];
 
 %360x1220, 20x20 window
@@ -90,12 +90,14 @@ for k=1:size(origImgStack,3)
             %1/2 road pix && balancing number of neg samples now
             if cSum >= sMax/2 
                 idxP = cat(1,idxP,1);
-                tcv = reshape(c{i,j},1,[]);
+                %tcv = reshape(c{i,j},1,[]);
+                tcv = double(extractHOGFeatures(c{i,j}));
                 normFactor = max(abs(tcv));
                 cvP = cat(1,cvP,tcv/normFactor);
             else
                 idxN = cat(1,idxN,-1);
-                tcv = reshape(c{i,j},1,[]);
+                %tcv = reshape(c{i,j},1,[]);
+                tcv = double(extractHOGFeatures(c{i,j}));
                 normFactor = max(abs(tcv));
                 cvN = cat(1,cvN,tcv/normFactor);
             end
@@ -120,6 +122,8 @@ end
 % model2 = fitcsvm(allCV,idxS);
 model = svmtrain(idxS,allCV,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 
+test = 0
+if test == 1;
 %% Testing the model
 % divide a test image with window fn
 xval = rgb2gray(double(imread(fullfile(TRAIN_ORIG_DIR,'um_000000.png')))/255);
@@ -185,5 +189,5 @@ figure;imagesc(classified);axis image;colormap gray;
 
 %figure; imagesc(res); axis image; colormap gray;
 
-
+end
 

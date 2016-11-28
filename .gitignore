@@ -11,6 +11,7 @@ spsstereo/*
 libelas/*
 results/*
 model.mat
+result.mat
 dpm/*
 *.m~
 *.asv
