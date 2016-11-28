@@ -122,8 +122,6 @@ end
 % model2 = fitcsvm(allCV,idxS);
 model = svmtrain(idxS,allCV,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 
-test = 0
-if test == 1;
 %% Testing the model
 % divide a test image with window fn
 xval = rgb2gray(double(imread(fullfile(TRAIN_ORIG_DIR,'um_000000.png')))/255);
@@ -160,14 +158,22 @@ xval = xval(1:im_siz(1),1:im_siz(2));
 %may want to tune this to get better run time, e.g. classify pixel
 %groups depending on the amount of precision/accuracy wanted.
 
+test = 0
+if test == 1;
+    
 classified = zeros(size(xval));
 %scored = zeros(size(xval));
-k = 10;
+psiz = 20;
+offset = psiz/2;
+imgp = padarray(xval,[offset,offset],0);
+
 for xp = 1:size(xval,1)
     for yp = 1:size(xval,2)
-        imgPatch = getPatch(xval,xp,yp,k);
-        imgPatch = reshape(imgPatch,1,[]);
-        [svmOut, svmACC,svm_dec] = svmpredict(1,imgPatch,model,'-b 0 -q');
+        %imgPatch = getPatch(xval,xp,yp,psiz);
+        imgPatch = imgp(xp:xp+psiz-1,yp:yp+psiz-1);
+        %imgPatch = reshape(imgPatch,1,[]);
+        imgPatchHOG = double(extractHOGFeatures(imgPatch));
+        [svmOut, svmACC,svm_dec] = svmpredict(1,imgPatchHOG,model,'-b 1');%'-b 0 -q');
         classified(xp,yp) = svmOut;
         %scored(xp,yp) = svm_dec(2);
     end
@@ -188,6 +194,5 @@ figure;imagesc(classified);axis image;colormap gray;
 % try decision forests - easier setup
 
 %figure; imagesc(res); axis image; colormap gray;
-
 end
 
