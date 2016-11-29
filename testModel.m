@@ -3,7 +3,7 @@ test_img = double(imread(fullfile(TRAIN_ORIG_DIR,'um_000000.png')))/255;
 %xval = rgb2gray(double(imread('data_road/testing/image_2/um_000031.png'))/255);
 test_img = test_img(1:im_siz(1),1:im_siz(2),:);
 
-test = 0
+test = 1
 if test == 1;
     
 classified = zeros(size(test_img));
@@ -48,8 +48,10 @@ for i=1:num_pix
 
     feat_vec = cat(2, hist_r, hist_g, hist_b, box_hog);
     normFactor = max(abs(feat_vec));
-    pred_vec = feat_vec/normFactor;
+    pred_vec = double(feat_vec/normFactor);
     
+    [svmOut, svmACC,svm_dec] = svmpredict(1,pred_vec,model,'-b 1');%'-b 0 -q');
+    classified(idx{i}) = svmOut * ones(size(idx{i}));
 end  
 
 figure;imagesc(classified);axis image;colormap gray;
