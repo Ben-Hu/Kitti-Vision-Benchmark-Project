@@ -1,29 +1,41 @@
 clear all; close all
 globals;
 addpath(genpath('dpm'));
-im = rgb2gray(single(imread(fullfile(TRAIN_ORIG_DIR,'um_000000.png')))/255);
-%figure; imagesc(img); axis image;
 data = load('dpm/VOC2010/car_final.mat');
 model = data.model;
 
-f = double(1.5);
-%scale up
-im_r = imresize(im,f); 
+data_r = load('models_lsvm/car_2.mat');
+model_r = data_r.model;
 
-[ds, bs] = imgdetect(im_r, model, model.thresh);
+%im = rgb2gray(single(imread('data_road/testing/image_2/um_000031.png'))/255);
+im = single(imread('data_road/training/image_2/um_000013.png'))/255;
 
-%TODO: tune thresholds
+im = single(imread('obj_training/000010.png'))/255;
+
+figure; imagesc(im); axis image; 
+
+% upsample the image to better detect smaller objects 
+% TODO: tune f param
+% f = 1.5;
+% imr = imresize(im,f); 
+
+% TODO: tune threshold, using model default
+[ds, bs] = imgdetect(imr, model, model.thresh);
+
+%TODO: tune NMS thresholds
 nms_thresh = 0.5;
 top = nms(ds, nms_thresh);
 if model.type == model_types.Grammar
   bs = [ds(:,1:4) bs];
 end
-if ~isempty(ds)
-    % resize back
-    ds(:, 1:end-2) = ds(:, 1:end-2)/f;
-    bs(:, 1:end-2) = bs(:, 1:end-2)/f;
-end;
-plotBoxes(im, ds(top,:), inf, 'r');
+
+% if ~isempty(ds)
+%     % resize back
+%     ds(:, 1:end-2) = ds(:, 1:end-2)/f;
+%     bs(:, 1:end-2) = bs(:, 1:end-2)/f;
+% end;
+
+plotBoxes(im, ds(top,:), 3, 'r');
 
 %TODO: get viewpoints + HoG(or other feature) over detection
 %for classifier training data
@@ -46,7 +58,7 @@ function plotBoxes(img,res,top_det,col)
         xp = [xl,xr,xr,xl,xl];
         yp = [yb,yb,yt,yt,yb];
         plot(xp,yp,'r','LineWidth',2);
-        text(xl,yt+fontsize/2,'Placeholder','Color',col,'FontSize',fontsize,'FontWeight','bold');
+        text(xl,yt+fontsize/2,sprintf('Car-%d',i), 'Color',col,'FontSize',fontsize,'FontWeight','bold');
     end
     hold off;
 end

@@ -74,4 +74,7 @@ end
 
 figure; imagesc(res); axis image; colormap gray;
 
+figure
+BW = boundarymask(L);
+imshow(imoverlay(im,BW,'cyan'),'InitialMagnification',67)
 

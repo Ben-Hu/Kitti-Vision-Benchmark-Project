@@ -102,6 +102,10 @@ for k=1:size(origImgStack,4)
             if cSum >= sMax/2 
                 idxP = cat(1,idxP,1);
                 %tcv = reshape(c{i,j},1,[]);
+                %Try: appending pixel values themselves
+                %TODO: classify superpixel areas instead of per pixel
+                %because that has insane runtime
+                
                 hog1 = double(extractHOGFeatures(c_rgb{i,j,1}, 'NumBins', 20, 'CellSize', [2, 2]));
                 hog2 = double(extractHOGFeatures(c_rgb{i,j,2}, 'NumBins', 20, 'CellSize', [2, 2]));
                 hog3 = double(extractHOGFeatures(c_rgb{i,j,3}, 'NumBins', 20, 'CellSize', [2, 2]));

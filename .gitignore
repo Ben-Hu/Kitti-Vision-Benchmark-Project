@@ -13,5 +13,6 @@ results/*
 model.mat
 result.mat
 dpm/*
+obj_training/*
 *.m~
 *.asv
