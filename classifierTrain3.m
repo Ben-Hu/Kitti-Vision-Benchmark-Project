@@ -4,6 +4,8 @@ globals;
 run vlfeat-0.9.20/toolbox/vl_setup.m
 addpath(genpath('libsvm'));
 
+%fixing image dimensions since training data has images of different
+%resolutions
 im_siz = [360,1220];
 window = [20,20];
 windowFac = [im_siz(1)/window(1),im_siz(2)/window(2)];
@@ -27,26 +29,37 @@ origImgStack = [];
 segImgStack = []; 
 
 for i=1:size(origListing,1)
-    cImg = rgb2gray(double(imread(fullfile(TRAIN_ORIG_DIR,origListing(i).name)))/255);
+    cImg = double(imread(fullfile(TRAIN_ORIG_DIR,origListing(i).name)))/255;
     %base smoothing
-    cImg = conv2(cImg(1:im_siz(1),1:im_siz(2)),fspecial('Gaussian', [25,25], 0.5), 'same');
-    origImgStack = cat(3,origImgStack,cImg);    
+    cImg = cImg(1:im_siz(1),1:im_siz(2),:);
+    %cImg = conv2(cImg,fspecial('Gaussian', [25,25], 0.5), 'same');
+    origImgStack = cat(4,origImgStack,cImg);    
 end
 
 for i=1:size(segListing,1)
     cImg = rgb2gray(double(imread(fullfile(TRAIN_SEG_DIR,segListing(i).name)))/255);
     %base smoothing
-    cImg = conv2(cImg(1:im_siz(1),1:im_siz(2)),fspecial('Gaussian', [25,25], 0.5), 'same');
+    cImg = cImg(1:im_siz(1),1:im_siz(2));
+    %cImg = conv2(cImg,fspecial('Gaussian', [25,25], 0.5), 'same');
     segImgStack = cat(3,segImgStack,cImg);
 end
 
 %% Prepare training data for classifier
 allCV = [];
 idxS = [];
-for k=1:size(origImgStack,3)
+for k=1:size(origImgStack,4)
     %(pre)instantiations
-    oimg = origImgStack(:,:,k);
-    c = mat2cell(oimg, window(1)*ones(1,windowFac(1)), window(2)*ones(1,windowFac(2)));
+    %oimg1 = origImgStack(:,:,1,k);
+    %oimg2 = origImgStack(:,:,2,k);
+    %oimg3 = origImgStack(:,:,3,k);
+    img_rgb = origImgStack(:,:,:,k);
+    
+    %c1 = mat2cell(oimg1, window(1)*ones(1,windowFac(1)), window(2)*ones(1,windowFac(2)));
+    %c2 = mat2cell(oimg2, window(1)*ones(1,windowFac(1)), window(2)*ones(1,windowFac(2)));
+    %c3 = mat2cell(oimg3, window(1)*ones(1,windowFac(1)), window(2)*ones(1,windowFac(2)));
+    %10x10x1 cells in 3 dimensions e.g. c_rgb{1,1,:} is a 3d 10x10 patch 
+    c_rgb = mat2cell(img_rgb, window(1)*ones(1,windowFac(1)), window(2)*ones(1,windowFac(2)), ones(1,3));
+    
     cvP = [];
     cvN = [];
     idxP = [];
@@ -63,8 +76,8 @@ for k=1:size(origImgStack,3)
     mincSum = inf;
     
     %each row of cv corresponds to a vectorized image patch for cur image
-    for i=1:size(c,1)
-        for j=1:size(c,2)
+    for i=1:size(c_rgb,1)
+        for j=1:size(c_rgb,2)
             %for each image patch, add to the vector cumulation
             %normalize the image patch data
             %classify each image patch based on smask sum val:
@@ -89,18 +102,25 @@ for k=1:size(origImgStack,3)
             if cSum >= sMax/2 
                 idxP = cat(1,idxP,1);
                 %tcv = reshape(c{i,j},1,[]);
-                tcv = double(extractHOGFeatures(c{i,j}));
+                hog1 = double(extractHOGFeatures(c_rgb{i,j,1}, 'NumBins', 20, 'CellSize', [2, 2]));
+                hog2 = double(extractHOGFeatures(c_rgb{i,j,2}, 'NumBins', 20, 'CellSize', [2, 2]));
+                hog3 = double(extractHOGFeatures(c_rgb{i,j,3}, 'NumBins', 20, 'CellSize', [2, 2]));
+                tcv = cat(2, hog1, hog2, hog3);
                 normFactor = max(abs(tcv));
                 cvP = cat(1,cvP,tcv/normFactor);
             else
                 idxN = cat(1,idxN,-1);
                 %tcv = reshape(c{i,j},1,[]);
-                tcv = double(extractHOGFeatures(c{i,j}));
+                hog1 = double(extractHOGFeatures(c_rgb{i,j,1}, 'NumBins', 20, 'CellSize', [2, 2]));
+                hog2 = double(extractHOGFeatures(c_rgb{i,j,2}, 'NumBins', 20, 'CellSize', [2, 2]));
+                hog3 = double(extractHOGFeatures(c_rgb{i,j,3}, 'NumBins', 20, 'CellSize', [2, 2]));
+                tcv = cat(2, hog1, hog2, hog3);
                 normFactor = max(abs(tcv));
                 cvN = cat(1,cvN,tcv/normFactor);
             end
         end
     end
+    
     %equalize neg & pos training samples if needed
     if size(cvN,1) > size(cvP,1)
         negSample = randsample(size(cvN,1),size(cvP,1));
@@ -122,9 +142,9 @@ model = svmtrain(idxS,allCV,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 
 %% Testing the model
 % divide a test image with window fn
-xval = rgb2gray(double(imread(fullfile(TRAIN_ORIG_DIR,'um_000000.png')))/255);
+xval = double(imread(fullfile(TRAIN_ORIG_DIR,'um_000000.png')))/255;
 %xval = rgb2gray(double(imread('data_road/testing/image_2/um_000031.png'))/255);
-xval = xval(1:im_siz(1),1:im_siz(2));
+xval = xval(1:im_siz(1),1:im_siz(2),:);
 % xc = mat2cell(xval, 20*ones(1,windowFac(1)), 20*ones(1,windowFac(2)));
 % xcv = zeros(size(xc,1)*size(xc,2),size(xc{1,1},1)*size(xc{1,1},2));
 % 
@@ -156,7 +176,7 @@ xval = xval(1:im_siz(1),1:im_siz(2));
 %may want to tune this to get better run time, e.g. classify pixel
 %groups depending on the amount of precision/accuracy wanted.
 
-test = 0
+test = 1
 if test == 1;
     
 classified = zeros(size(xval));
@@ -168,10 +188,16 @@ imgp = padarray(xval,[offset,offset],0);
 for xp = 1:size(xval,1)
     for yp = 1:size(xval,2)
         %imgPatch = getPatch(xval,xp,yp,psiz);
-        imgPatch = imgp(xp:xp+psiz-1,yp:yp+psiz-1);
+        imgPatch1 = imgp(xp:xp+psiz-1,yp:yp+psiz-1,1);
+        imgPatch2 = imgp(xp:xp+psiz-1,yp:yp+psiz-1,2);
+        imgPatch3 = imgp(xp:xp+psiz-1,yp:yp+psiz-1,3);
         %imgPatch = reshape(imgPatch,1,[]);
-        imgPatchHOG = double(extractHOGFeatures(imgPatch));
-        [svmOut, svmACC,svm_dec] = svmpredict(1,imgPatchHOG,model,'-b 1');%'-b 0 -q');
+        %double(extractHOGFeatures(imgp(xp:xp+psiz-1,yp:yp+psiz-1,:), 'NumBins', 20', 'CellSize', [2 2]));
+        phog1 = double(extractHOGFeatures(imgPatch1, 'NumBins', 20', 'CellSize', [2 2]));
+        phog2 = double(extractHOGFeatures(imgPatch2, 'NumBins', 20', 'CellSize', [2 2]));
+        phog3 = double(extractHOGFeatures(imgPatch3, 'NumBins', 20', 'CellSize', [2 2]));
+        pred_vec = cat(2, phog1, phog2, phog3);
+        [svmOut, svmACC,svm_dec] = svmpredict(1,pred_vec,model,'-b 0 -q');%'-b 0 -q');
         classified(xp,yp) = svmOut;
         %scored(xp,yp) = svm_dec(2);
     end
