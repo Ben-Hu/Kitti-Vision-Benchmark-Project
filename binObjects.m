@@ -28,16 +28,38 @@ globals;
 LABEL_DIR='obj_training/label_2/car_data';
 label_list = dir(fullfile(LABEL_DIR,'*.txt'));
 
-x1 = []; y1 = [];
-x2 = []; y2 = [];
+
+%need dims, 
+%x1,y1,x2,y3 2-dims
+%each row = detection
+%third dim = per training image
+detections = [];
 alpha = [];
+
+%process labels for each image
 for i=1:size(label_list,1)
     [~,idx,~] = fileparts(label_list(i).name);
     obj = readLabel(LABEL_DIR, idx);
-    x1 = cat(1,x1,obj.x1);
-    x2 = cat(1,x2,obj.x2);
-    y1 = cat(1,y1,obj.y1);
-    y2 = cat(1,y2,obj.y2);
+    %process each detection in image
+    for j=1:size(obj,2)
+        c_obj = obj(j);
+        %xl, yt, xr, yb
+        c_box = [c_obj.x1,c_obj.y1,c_obj.x2,c_obj.y2];
+        c_alpha = c_obj.alpha;
+        %er this is tricky, different numbers of detections 
+        %also box dimensions all different
+        %need to do the processing directly in here and get standard
+        %feature vectors at this point in reading the data
+    end
+    
     alpha = cat(1,alpha,obj.alpha);
 end
+
+
+box_dims = [x1, y1, x2, y2];
+degs = rad2deg(alpha);
+
+
+
+
 

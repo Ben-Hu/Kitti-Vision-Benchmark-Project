@@ -11,6 +11,7 @@ model_r = data_r.model;
 im = single(imread('data_road/training/image_2/um_000013.png'))/255;
 
 im = single(imread('obj_training/000010.png'))/255;
+imr = im;
 
 figure; imagesc(im); axis image; 
 
@@ -62,3 +63,14 @@ function plotBoxes(img,res,top_det,col)
     end
     hold off;
 end
+
+%simpler detections
+% clear all; close all;
+% globals;
+% addpath(genpath('dpm'));
+% data = load('dpm/VOC2010/car_final.mat');
+% model = data.model;
+% 
+% im = single(imread('obj_training/000010.png'))/255;
+% bbox = process(im, model, -0.5);
+% showboxes(im, bbox);
