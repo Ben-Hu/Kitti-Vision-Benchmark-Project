@@ -2,7 +2,7 @@ clear all; close all;
 globals;
 %addpath(genpath('kitti_obj_devkit'));
 %using modified readLabels to take raw img_idx input
-data_set = 2;
+data_set = 3;
 if data_set == 0
     label_list = dir(fullfile(LABEL_DIR,'000063.txt'));
 elseif data_set == 1
