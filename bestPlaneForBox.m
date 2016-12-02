@@ -1,76 +1,86 @@
-% function [ best ] = bestPlaneForBox( depth, xleft, ytop, xright, ybottom  )
-%BESTPLANEFORBOX given a bounding box described by xleft, ytop, xright,
-%ybottom for image depth, find the best 3D plane to describe this patch.
+function [ best, curError ] = bestPlaneForBox( depth, segmented, highP)
+%BESTPLANEFORBOX 
+im_siz = [360,1220];
 
-% taking 3 points at random from within the bounding box and finding the
-% plane they form. Use RANSAC to find the best plane in the depth map given
-% within the bounding box.
+    % crop the image so we can actually perform operations on it
+    segmented = segmented(1:im_siz(1),1:im_siz(2));
 
+    % reshape image for processing
+    im = reshape(segmented, 1,[]);
 
-% TODO: This needs to be vectorised, it runs like a snail.
+    % find non-zeros (segmented image should be binary)
+    imOnes = im==1;
+    imOnes = find(imOnes==1);
 
-   
-    % vars for tuning ransac
-    iterMax = 100;
-    threshold = 3;
-    
-    % setup data
-    xVals = (xleft:xright);
-    yVals = (ytop:ybottom);
-    
-    % "instantiate" top number of agreements
-    bestAgree = 0;
-    
-    for i=1:iterMax
-       xSample = randsample(xVals, 3,false);
-       ySample = randsample(yVals, 3, false);
-       
-       % create three 3d points from which we can assemble a plane
-       p1 = [xSample(1), ySample(1), depth(ySample(1), xSample(1))];
-       p2 = [xSample(2), ySample(2), depth(ySample(2), xSample(2))];
-       p3 = [xSample(3), ySample(3), depth(ySample(3), xSample(3))];
-       
-       % the normal to the plane = cross product of two vectors made from
-       % our points
-       normal = cross(p1-p2, p1-p3);
-       
-       % given the normal vector build a function for our plane
-       syms x y z
-       p = [x,y,z];
-       
-       % take the dot product of the normal and any of our points to get a
-       % function that describes this plane
-       planeFunction = dot(normal, p-p1);
-              
-       % iterate through the bounding box and find how many points agree
-       % with our plane
-       % *NOTE* recall that matlab is weird about coords, hence the
-       % inversion of coords here. 
-           
-       
-       [X, Y] = meshgrid((xleft:xright), (ybottom:ytop));
+    % get the indeces associated with 1's in the image
+    [onesX,onesY] = ind2sub([size(segmented, 1), size(segmented, 2)], imOnes);
+
+    % perform the same operations to get the indeces of the 1's in the high
+    % probability map (we'll need these later)
+    hp = reshape(highP, 1,[]);
+    highPOnes = hp==1;
+    highPOnes = find(highPOnes==1);
+    [highPX,highPY] = ind2sub([size(highP, 1), size(highP, 2)], highPOnes);
+
+    % adjust itermax for performance
+    itermax = 25;
+    curError = inf;
+    % perform RANSAC on random 3 points
+    for i=1:itermax
 
 
-       % create a matrix of points and their boolean agreement
-       agreeM = arrayfun(@(x, y, z) getAgreement(x, y, z, pf) ,...
-           reshape(X.',1, numel(X)),...
-           reshape(Y.', 1, numel(Y)),...
-           reshape(depth.', 1, numel(depth)),...
-           planefunction);
-       
-       % the sum of the agreement matrix is this plane's score
-       agree = sum(agreeM);
-      
-       
-       % if we beat our best number of agreements, make this our best
-       if (agree > bestAgree)
-          bestAgree = agree;
-          best = planeFunction;
-       end
+        % grab 3 random indeces
+        randIx = randperm(numel(onesX), 3);
+
+        % take 3 3D points to build a plane
+        p1 = [onesX(randIx(1)), onesY(randIx(1)), depth(onesX(randIx(1)), onesY(randIx(1)))];
+        p2 = [onesX(randIx(2)), onesY(randIx(2)), depth(onesX(randIx(2)), onesY(randIx(2)))];
+        p3 = [onesX(randIx(3)), onesY(randIx(3)), depth(onesX(randIx(3)), onesY(randIx(3)))];
+
+
+        % the normal to the plane = cross product of two vectors made from
+        % our points
+        normal = cross(p1-p2, p1-p3);
+
+        % given the normal vector build a function for our plane
+        syms x y z
+        p = [x,y,z];
+
+        % take the dot product of the normal and any of our points to get a
+        % function that describes this plane
+        planeFunction = dot(normal, p-p1);
+
+        val = 0;
         
+        % iterate over high probability points
+        for m=1:size(highPX, 1)
+            % take a random point from our high probability map, hp1,hp2,hp3
+            hpPoint = [highPX(i), highPY(i), depth(highPX(i), highPY(i))];
+
+              % project that point onto our plane function. Points that
+              % lie on the plane should have dist == 0
+              dist = subs(planeFunction, p, hpPoint);
+              dist = abs(double(dist));
+
+              val = val + dist; 
+
+        end
+
+        % update our "best" if we got a function with less error.
+        if (val < curError)
+           curError = val;
+           best = planeFunction;
+        end
+
+
+
     end
     
-    % "return" the best planeFunction
-    
-% end
+    [m , n] = meshgrid(1:30,1:30);  
+    equa = solve(best, z);
+    o = eval(subs(equa, {x,y}, {m,n}));
+    mesh(m,n, o)
+
+
+end
 
