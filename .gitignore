@@ -19,3 +19,4 @@ kitti_obj_devkit/*
 *.asv
 data_car_left/*
 data_car_right/*
+tmp/*
