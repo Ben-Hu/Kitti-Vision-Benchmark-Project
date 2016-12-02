@@ -102,7 +102,7 @@ ref_y2 = mean(img_siz_data(:,2));
 %(2)-120:-150
 %(1)-150:180
 
-bins = cat(2,-1*[180:-30:30],0:30:180);
+bins = cat(2,-1*180:-30:30,0:30:180);
 binned = discretize(dirA,bins);
 
 for i=1:size(bins,2)
@@ -114,56 +114,56 @@ end
 
 cv = double(cat(1, bin1, bin2));
 idx = double(cat(1, ones(size(bin1,1),1), -1*ones(size(bin2,1),1)));
-model1 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
+model_1 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 
 cv = double(cat(1, bin2, bin3));
 idx = double(cat(1, ones(size(bin2,1),1), -1*ones(size(bin3,1),1)));
-model2 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
+model_2 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 
 cv = double(cat(1, bin3, bin4));
 idx = double(cat(1, ones(size(bin3,1),1), -1*ones(size(bin4,1),1)));
-model3 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
+model_3 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 
 cv = double(cat(1, bin4, bin5));
 idx = double(cat(1, ones(size(bin4,1),1), -1*ones(size(bin5,1),1)));
-model4 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
+model_4 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 
 cv = double(cat(1, bin5, bin6));
 idx = double(cat(1, ones(size(bin5,1),1), -1*ones(size(bin6,1),1)));
-model5 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
+model_5 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 
 cv = double(cat(1, bin6, bin7));
 idx = double(cat(1, ones(size(bin6,1),1), -1*ones(size(bin7,1),1)));
-model6 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
+model_6 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 
 cv = double(cat(1, bin7, bin8));
 idx = double(cat(1, ones(size(bin7,1),1), -1*ones(size(bin8,1),1)));
-model7 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
+model_7 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 
 cv = double(cat(1, bin8, bin9));
 idx = double(cat(1, ones(size(bin8,1),1), -1*ones(size(bin9,1),1)));
-model8 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
+model_8 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 
 cv = double(cat(1, bin9, bin10));
 idx = double(cat(1, ones(size(bin9,1),1), -1*ones(size(bin10,1),1)));
-model9 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
+model_9 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 
 cv = double(cat(1, bin10, bin11));
 idx = double(cat(1, ones(size(bin10,1),1), -1*ones(size(bin11,1),1)));
-model10 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
+model_10 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 
 cv = double(cat(1, bin11, bin12));
 idx = double(cat(1, ones(size(bin11,1),1), -1*ones(size(bin12,1),1)));
-model11 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
+model_11 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 
 cv = double(cat(1, bin12, bin1));
 idx = double(cat(1, ones(size(bin12,1),1), -1*ones(size(bin1,1),1)));
-model12 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1'); %This model is only for verifying bin12 items essentially 150-180d
+model_12 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1'); %This model_ is only for verifying bin12 items essentially 150-180d
 
 %e.g.
-[svmOut,~,~] = svmpredict(1,double(bin1(1,:)),model1,'b 1'); %Output 100%
-[svmOut,~,~] = svmpredict(1,double(bin1(1,:)),model2,'b 1'); %Output 0% 100~=0 Match
+[svmOut,~,~] = svmpredict(1,double(bin1(1,:)),model_1,'b 1'); %Output 100%
+[svmOut,~,~] = svmpredict(1,double(bin1(1,:)),model_2,'b 1'); %Output 0% 100~=0 Match
 
-[svmOut,~,~] = svmpredict(1,double(bin2(2,:)),model1,'b 1'); %Output 0%  
-[svmOut,~,~] = svmpredict(1,double(bin2(1,:)),model2,'b 1'); %Output 100% 0~=100Match
+[svmOut,~,~] = svmpredict(1,double(bin2(2,:)),model_1,'b 1'); %Output 0%  
+[svmOut,~,~] = svmpredict(1,double(bin2(1,:)),model_2,'b 1'); %Output 100% 0~=100Match
 
