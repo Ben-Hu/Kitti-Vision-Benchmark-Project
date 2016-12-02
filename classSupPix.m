@@ -37,7 +37,9 @@ for i=1:size(origListing,1)
 end
 
 for i=1:size(segListing,1)
-    cImg = rgb2gray(double(imread(fullfile(TRAIN_SEG_DIR,segListing(i).name)))/255);
+    %cImg = rgb2gray(double(imread(fullfile(TRAIN_SEG_DIR,segListing(i).name)))/255);
+    cImg = double(imread(fullfile(TRAIN_SEG_DIR,segListing(i).name)))/255;
+    cImg = cImg(:,:,3); %Road segment channel
     %base smoothing
     cImg = cImg(1:im_siz(1),1:im_siz(2));
     %cImg = conv2(cImg,fspecial('Gaussian', [25,25], 0.5), 'same');
