@@ -48,7 +48,7 @@ for i=1:size(label_list,1)%63:63%
         
         %figure; imagesc(grad_mag); axis image; colormap gray
         %figure; imagesc(img_data); axis image; colormap gray
-        figure; imagesc(img_data_r); axis image; colormap gray
+        %figure; imagesc(img_data_r); axis image; colormap gray
         
         %SHAPE
         %Morphological disk blurring for general shape information
@@ -78,8 +78,6 @@ end
 
 ref_x1 = mode(img_siz_data(:,1));
 ref_y1 = mode(img_siz_data(:,2));
-
-
 ref_x2 = mean(img_siz_data(:,1));
 ref_y2 = mean(img_siz_data(:,2));
 
@@ -107,7 +105,6 @@ ref_y2 = mean(img_siz_data(:,2));
 bins = cat(2,-1*[180:-30:30],0:30:180);
 binned = discretize(dirA,bins);
 
-
 for i=1:size(bins,2)
     eval(sprintf('bin%d = [];',i));
 end
@@ -118,14 +115,5 @@ end
 cv = cat(1, bin1, bin2);
 idx = cat(1, ones(size(bin1,1),1), zeros(size(bin2,1),1)); %-1*ones(size(bin2,1),1));
 
-test = svmtrain(idt,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
-
-
-
-
- 
- 
-
-
-
+test = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 
