@@ -2,17 +2,21 @@ clear all; close all;
 globals;
 %addpath(genpath('kitti_obj_devkit'));
 %using modified readLabels to take raw img_idx input
-data_set = 0;
+data_set = 2;
 if data_set == 0
     label_list = dir(fullfile(LABEL_DIR,'000063.txt'));
 elseif data_set == 1
     label_list = dir(fullfile(LABEL_DIR,'00006*.txt'));
+elseif data_set == 2
+    label_list = dir(fullfile(LABEL_DIR,'0000*.txt'));
 else
     label_list = dir(fullfile(LABEL_DIR,'*.txt'));
 end
 %process labels for each image
 tdA = [];
 dirA = [];
+%For tuning analysis
+img_siz_data = [];
 for i=1:size(label_list,1)%63:63%
     [~,idx,~] = fileparts(label_list(i).name);
     obj = readLabel(LABEL_DIR, idx);
@@ -27,6 +31,7 @@ for i=1:size(label_list,1)%63:63%
         c_alpha = c_obj.alpha;
         %3 dimensional patch
         img_data = img(c_box(1):c_box(2),c_box(3):c_box(4),:);
+        img_siz_data = cat(1,img_siz_data,size(img_data(:,:)));
         img_data_r = imresize(img_data, [80,120]);
         c_hog = extractHOGFeatures(img_data_r, 'NumBins', 9, 'CellSize', [6, 6]);
         
@@ -43,6 +48,7 @@ for i=1:size(label_list,1)%63:63%
         
         %figure; imagesc(grad_mag); axis image; colormap gray
         %figure; imagesc(img_data); axis image; colormap gray
+        figure; imagesc(img_data_r); axis image; colormap gray
         
         %SHAPE
         %Morphological disk blurring for general shape information
@@ -70,33 +76,53 @@ for i=1:size(label_list,1)%63:63%
     tdA = cat(1,tdA,img_vec);
 end
 
+ref_x1 = mode(img_siz_data(:,1));
+ref_y1 = mode(img_siz_data(:,2));
+
+
+ref_x2 = mean(img_siz_data(:,1));
+ref_y2 = mean(img_siz_data(:,2));
+
+%save('obj_tdA.mat', 'tdA');
+%save('obj_dirA.mat', 'dirA');
+
 %BINNING DATA 
 %Equal sampling per bin
+%Note: Label dataset alpha has the domain L:Pos R:Neg 0:F 180:B
 
-%0-30
+%(12)150:180  %180 gets binned here
+%(11)120:150
+%(10)90:120
+%(9)60:90
+%(8)30:60
+%(7)0:30
 
-%30-60
+%(6)0:-30
+%(5)-30:-60
+%(4)-60:-90
+%(3)-90:-120
+%(2)-120:-150
+%(1)-150:180
 
-%60-90
+bins = cat(2,-1*[180:-30:30],0:30:180);
+binned = discretize(dirA,bins);
 
-%90-120
 
-%120-150
+for i=1:size(bins,2)
+    eval(sprintf('bin%d = [];',i));
+end
+for i=1:size(bins,2)
+    eval(sprintf('bin%d = cat(2, bin%d, tdA(find(binned==%d),:));',i,i,i));
+end
 
-%150-180
+cv = cat(1, bin1, bin2);
+idx = cat(1, ones(size(bin1,1),1), zeros(size(bin2,1),1)); %-1*ones(size(bin2,1),1));
 
-%210-240
+test = svmtrain(idt,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 
-%240-270
 
-%270-300
 
-%300-330
 
-%330-360
- 
- 
- 
  
  
 
