@@ -1,19 +1,21 @@
-function [pointCloud] = getPointCloud(depth, numBuckets, bucketSize)
+function [pc_o] = getPointCloud(img, depth, numBuckets, bucketSize)
 %GETPOINTCLOUD returns a 3d matrix point cloud that represents depth.
 %Note that any value greater than numBuckets*bucketSize will be clipped to
 %numBuckets*bucketSize
 % I had good success with buckets 300 buckets of size 2, 
 
+
 im_siz = [360,1220];
+img = img(1:im_siz(1),1:im_siz(2),:);
 
 % crop depth just in case
- depth = depth(1:im_siz(1),1:im_siz(2));
+depth = depth(1:im_siz(1),1:im_siz(2));
 
 % build meshgrids to store 3d data
 [X,Y] = meshgrid(1:size(depth,2),1:size(depth,1));
 
 % setup the point cloud
-pointCloud = zeros(size(depth, 1), size(depth,2));
+pc = zeros(size(depth, 1), size(depth,2));
 
 % bucketDepth is based on depth, so just rename (is this bad form?)
 bucketDepth = depth;
@@ -29,11 +31,13 @@ end
 bucketDepth(bucketDepth>bucket) = bucket;
 
 % Build the 3d point cloud
-pointCloud(:,:,1) = X;
-pointCloud(:,:,2) = Y;
-pointCloud(:,:,3) = bucketDepth;
+pc(:,:,1) = X;
+pc(:,:,2) = Y;
+pc(:,:,3) = bucketDepth;
+
+pc_o = pointCloud(pc, 'Color', img);
 
 % show the point cloud
-% pcshow(pls2);
+% pcshow(pc);
 
 end

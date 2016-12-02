@@ -38,13 +38,25 @@ for i=1:size(idx,2)
     c_layer(g_idx) = img(g_idx);
     c_layer(b_idx) = img(b_idx);
     stack(:,:,:,i) = c_layer;
-    [xr,yr] = ind2sub(r_idx);
-    patch = patch(xr,yr,'red');
+    %[xr,yr] = ind2sub([x_siz,y_siz],r_idx);
+    %pt = patch(xr,yr,'red');
 end
 
+%sanity check
+%test = sum(stack,4);
+%figure; iamgesc(test); axis image;
+
 for i=1:20%size(layers,2)
-    figure; imagesc(stack(:,:,:,1));
-    axis equal; view(3); axis tight; axis vis3d; grid off; 
+    figure; imagesc(stack(:,:,:,i)); axis image;
+    %just need to figure out how to display this in a 3d 'grid'
+    %write to ply file format
+    %axis equal; view(3); axis tight; axis vis3d; grid off; 
+end
+
+for i=1:size(stack,4)
+    clvl_r = stack(:,:,1,i);
+    clvl_g = stack(:,:,1,i);
+    clvl_b = stack(:,:,1,i);   
 end
 
 
