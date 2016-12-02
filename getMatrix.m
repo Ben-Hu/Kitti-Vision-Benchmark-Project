@@ -28,5 +28,6 @@ function [P]=getMatrix(calibDir,camera,imageID)
         P(:,:,i) = cP;
         fclose(fileID);
     end
+    P = P';
 end
 
