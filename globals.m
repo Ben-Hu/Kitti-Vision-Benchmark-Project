@@ -28,6 +28,6 @@ LABEL_DIR='data_car_left/training/label_2/car_data';
 %run vlfeat-0.9.20/toolbox/vl_setup.m;
 addpath(genpath('dpm'));
 addpath(genpath('libsvm'));
-addpath(genpath('vlfeat-0.9.20'));
+%addpath(genpath('vlfeat-0.9.20'));
 
 
