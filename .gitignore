@@ -17,3 +17,5 @@ obj_training/*
 kitti_obj_devkit/*
 *.m~
 *.asv
+data_car_left/*
+data_car_right/*
