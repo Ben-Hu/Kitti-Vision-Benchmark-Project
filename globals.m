@@ -18,6 +18,9 @@ DISPARITY_DIR=fullfile(DATA_DIR,'disparityTraining');
 DEPTH_DIR=fullfile(DATA_DIR,'depthTraining');
 
 %%OBJECT
+TEST_CAR_IMG_L='data_car_left/testing/image_2';
+TEST_CAR_IMG_R='data_car_right/testing/image_3';
+
 CAR_IMG_L='data_car_left/training/image_2';
 CAR_IMG_R='data_car_right/training/image_3';
 
