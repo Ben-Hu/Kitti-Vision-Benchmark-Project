@@ -61,7 +61,7 @@ for i=1:size(label_list,1)%63:63%
         img_vec = cat(1,img_vec,feat_vec/norm_factor);
         
         %idx
-        dirA = cat(1, dirA, rad2deg(c_alpha));
+        dirA = cat(1, dirA, c_alpha);
         norm_factor = max(abs(dirA));
         dirA = dirA/norm_factor;
         %SIFT(features)
