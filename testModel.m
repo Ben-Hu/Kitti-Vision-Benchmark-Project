@@ -1,6 +1,6 @@
 %% Testing the model
 test_img = double(imread(fullfile(TRAIN_ORIG_DIR,'um_000000.png')))/255;
-%xval = rgb2gray(double(imread('data_road/testing/image_2/um_000031.png'))/255);
+test_img = double(imread('data_road/testing/image_2/um_000031.png'))/255;
 test_img = test_img(1:im_siz(1),1:im_siz(2),:);
 
 test = 1

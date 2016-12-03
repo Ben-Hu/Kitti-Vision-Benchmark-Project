@@ -2,13 +2,15 @@ clear all; close all;
 globals;
 %addpath(genpath('kitti_obj_devkit'));
 %using modified readLabels to take raw img_idx input
-data_set = 3;
+data_set = 2;
 if data_set == 0
     label_list = dir(fullfile(LABEL_DIR,'000063.txt'));
 elseif data_set == 1
     label_list = dir(fullfile(LABEL_DIR,'00006*.txt'));
 elseif data_set == 2
     label_list = dir(fullfile(LABEL_DIR,'0000*.txt'));
+elseif data_set == 3
+    label_list = dir(fullfile(LABEL_DIR,'000*.txt'));
 else
     label_list = dir(fullfile(LABEL_DIR,'*.txt'));
 end
@@ -41,10 +43,10 @@ for i=1:size(label_list,1)%63:63%
         %img_data_r_bw = img_data_r(:,:,1);
         y_filt = [-1,0,1];
         x_filt = [-1;0;1];
-        
-       % grad_y = conv2(img_data_r_bw,y_filt,'same').^2;
-       % grad_x = conv2(img_data_r_bw,x_filt,'same').^2;
-       % grad_mag = sqrt(grad_y + grad_x);
+%         
+%         grad_y = conv2(img_data_r_bw,y_filt,'same').^2;
+%         grad_x = conv2(img_data_r_bw,x_filt,'same').^2;
+%         grad_mag = sqrt(grad_y + grad_x);
         
         %figure; imagesc(grad_mag); axis image; colormap gray
         %figure; imagesc(img_data); axis image; colormap gray
@@ -52,18 +54,29 @@ for i=1:size(label_list,1)%63:63%
         
         %SHAPE
         %Morphological disk blurring for general shape information
-       % element = strel('disk', 5);
-       % supp = imopen(img_data_r_bw, element);
+%         element = strel('disk', 3);
+%         supp = imopen(img_data_r_bw, element);
         %figure; imagesc(supp); axis image; colormap gray
        
-        feat_vec = c_hog;%cat(2,c_hog,reshape(grad_mag,1,[]),reshape(supp,1,[]));
+        grad_y = conv2(img_data_r_bw,y_filt,'same').^2;
+        grad_x = conv2(img_data_r_bw,x_filt,'same').^2;
+        grad_mag = sqrt(grad_y + grad_x);
+        %figure; imagesc(grad_mag); axis image; colormap gray
+        
+%         element = padarray(fspecial('disk',15)>0, [25 45], 0);
+%         element = element(1:size(element,1)-1, 1:size(element,2)-1);
+%         test = activecontour(grad_mag, element)
+%         figure; imagesc(test); axis image;
+        
+        %bw = edge(img_data_r_bw, 'Canny', [0.1,0.40]);
+        %figure; imagesc(bw); axis image; colormap gray
+        feat_vec = cat(2,c_hog,reshape(grad_mag,1,[]));%cat(2,c_hog,reshape(grad_mag,1,[]),reshape(supp,1,[]));%
         norm_factor = max(abs(feat_vec));
         img_vec = cat(1,img_vec,feat_vec/norm_factor);
         
         %idx
-        dirA = cat(1, dirA, c_alpha);
-        norm_factor = max(abs(dirA));
-        dirA = dirA/norm_factor;
+        dirA = cat(1, dirA, rad2deg(c_alpha));
+       
         %SIFT(features)
         %[keypoints,desc] = vl_sift(img_data_r);
         %[keypoints_g,desc_g] = vl_sift(mag_grad);
@@ -103,7 +116,6 @@ ref_y2 = mean(img_siz_data(:,2));
 %(3)-90:-120
 %(2)-120:-150
 %(1)-150:180
-
 bins = cat(2,-1*[180:-30:30],0:30:180);
 binned = discretize(dirA,bins);
 
@@ -154,10 +166,29 @@ model_12 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1'); %This model_ is only
 for i=1:size(bin1,1)
     [svmOut1a(i),~,~] = svmpredict(1,double(bin1(1,:)),model_1,'b 1'); %Output 100%
     [svmOut1b(i),~,~] = svmpredict(1,double(bin1(1,:)),model_2,'b 1'); %Output 0% 100~=0 Match
-    endsa
+end
 
 for i=1:size(bin2,1)
-    [svmOut2a(i),~,~] = svmpredict(1,double(bin2(2,:)),model_1,'b 1'); %Output 100%  
+    [svmOut2a(i),~,~] = svmpredict(1,double(bin2(1,:)),model_1,'b 1'); %Output 0%  
     [svmOut2b(i),~,~] = svmpredict(1,double(bin2(1,:)),model_2,'b 1'); %Output 100% 
-    [svmOut2b(i),~,~] = svmpredict(1,double(bin2(1,:)),model_3,'b 1'); %Output 0% 0~=100Match
+    %[svmOut2b(i),~,~] = svmpredict(1,double(bin2(1,:)),model_3,'b 1'); %Output 0% 0~=100Match
 end
+
+for i=1:size(bin3,1)
+    [svmOut3a(i),~,~] = svmpredict(1,double(bin3(1,:)),model_2,'b 1'); %Output 0%  
+    [svmOut3b(i),~,~] = svmpredict(1,double(bin3(1,:)),model_3,'b 1'); %Output 100% 
+end
+
+
+% 1 m1 1 m2 0
+% 2 m1 0 m2 1
+% 3 m2 0 m3 1
+% 4 m3 0  m4 1
+% 5 m4 0 m5 1
+% 6 m5 0 m 6 1
+% 7 m6 0 m7 1
+% 8 m7 0 m8 1
+% 9 m8 0 m9 1
+% 10 m9 0 m10 1
+% 11 m10 0 m11 1
+% 12 m11 0 m 12 1

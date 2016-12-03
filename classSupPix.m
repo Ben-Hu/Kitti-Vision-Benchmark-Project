@@ -1,7 +1,7 @@
 %% Classifier Training
 clear all; close all;
 globals;
-run vlfeat-0.9.20/toolbox/vl_setup.m
+%run vlfeat-0.9.20/toolbox/vl_setup.m
 addpath(genpath('libsvm'));
 
 %fixing image dimensions since training data has images of different
@@ -13,7 +13,7 @@ windowFac = [im_siz(1)/window(1),im_siz(2)/window(2)];
 %360x1220, 20x20 window
 
 %% Load training data- + preprocess
-trainingSet = 0;
+trainingSet = 1;
 if trainingSet == 0
     origListing = dir(fullfile(TRAIN_ORIG_DIR,'um_000000.png'));
     segListing = dir(fullfile(TRAIN_SEG_DIR,'um_road_000000.png'));
@@ -58,7 +58,8 @@ for k=1:size(origImgStack,4)
     simg = segImgStack(:,:,k);
     rPixVal = max(reshape(simg,1,[]));
     smask = simg(:,:) >= rPixVal;
- 
+    figure; imagesc(smask); axis image; colormap gray;
+    
     [labels,num_pix] = superpixels(cur_img,300);
     %BM = boundarymask(L);
     %figure; imshow(imoverlay(cur_img,BM,'cyan'),'InitialMagnification',67)
