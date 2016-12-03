@@ -2,12 +2,12 @@ clear all; close all;
 globals;
 addpath(genpath('dpm'));
 data = load('dpm/VOC2010/car_final.mat');
-model_ = data.model_;
+model_d = data.model;
 
 %Get dpm detections:
 img = double(imread(fullfile(CAR_IMG_L, '000063.png')))/255;
-detections = process(img, model_, -0.5);
-%showboxes(im, bbox);
+detections = process(img, model_d, -0.5);
+showboxes(im, bbox);
 
 %Classify each detection
 for i=1:size(detections,1)
@@ -46,7 +46,7 @@ for i=1:size(detections,1)
     supp = imopen(img_data_r_bw, element);
     %figure; imagesc(supp); axis image; colormap gray
 
-    feat_vec = cat(2,c_hog,reshape(grad_mag,1,[]),reshape(supp,1,[]));
+    feat_vec = c_hog; %cat(2,c_hog,reshape(grad_mag,1,[]),reshape(supp,1,[]));
     norm_factor = max(abs(feat_vec));
     pred_vec = cat(1,img_vec,feat_vec/norm_factor);
     

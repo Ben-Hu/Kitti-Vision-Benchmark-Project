@@ -2,7 +2,7 @@ clear all; close all;
 globals;
 %addpath(genpath('kitti_obj_devkit'));
 %using modified readLabels to take raw img_idx input
-data_set = 2;
+data_set = 3;
 if data_set == 0
     label_list = dir(fullfile(LABEL_DIR,'000063.txt'));
 elseif data_set == 1
@@ -70,7 +70,7 @@ for i=1:size(label_list,1)%63:63%
         
         %bw = edge(img_data_r_bw, 'Canny', [0.1,0.40]);
         %figure; imagesc(bw); axis image; colormap gray
-        feat_vec = cat(2,c_hog,reshape(grad_mag,1,[]));%cat(2,c_hog,reshape(grad_mag,1,[]),reshape(supp,1,[]));%
+        feat_vec = c_hog;%cat(2,c_hog,reshape(grad_mag,1,[]));%cat(2,c_hog,reshape(grad_mag,1,[]),reshape(supp,1,[]));%
         norm_factor = max(abs(feat_vec));
         img_vec = cat(1,img_vec,feat_vec/norm_factor);
         
