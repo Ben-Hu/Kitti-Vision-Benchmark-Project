@@ -1,13 +1,13 @@
 clear all; close all;
 globals;
 addpath(genpath('dpm'));
-data = load('dpm/VOC2010/car_final.mat');
-model_d = data.model;
 
 %Get dpm detections:
 %img = double(imread(fullfile(CAR_IMG_L, '000063.png')))/255; %-180
 %img = double(imread(fullfile(TEST_CAR_IMG_L, '000005.png')))/255; %fails
 img = double(imread(fullfile(TEST_CAR_IMG_L, '000037.png')))/255;
+data = load('dpm/VOC2010/car_final.mat');
+model_d = data.model;
 detections = process(img, model_d, -0.5);
 showboxes(img, detections);
 
@@ -41,7 +41,7 @@ for i=1:size(detections,1)
     figure; imagesc(img_data); axis image; colormap gray
     %figure; imagesc(img_data_r); axis image; colormap gray
     %figure; imagesc(grad_mag); axis image; colormap gray
-
+   
     %SHAPE
     %Morphological disk blurring for general shape information
     element = strel('disk', 5);

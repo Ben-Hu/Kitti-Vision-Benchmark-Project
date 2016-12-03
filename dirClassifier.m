@@ -50,8 +50,8 @@ for i=1:size(label_list,1)%63:63%
         
         %SHAPE
         %Morphological disk blurring for general shape information
-%         element = strel('disk', 3);
-%         supp = imopen(img_data_r_bw, element);
+%       element = strel('disk', 3);
+%       supp = imopen(img_data_r_bw, element);
         %figure; imagesc(supp); axis image; colormap gray
        
         grad_y = conv2(img_data_r_bw,y_filt,'same').^2;
