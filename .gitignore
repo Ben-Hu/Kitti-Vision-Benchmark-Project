@@ -20,3 +20,4 @@ kitti_obj_devkit/*
 data_car_left/*
 data_car_right/*
 tmp/*
+car_dir_model*

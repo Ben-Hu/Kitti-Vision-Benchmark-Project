@@ -33,7 +33,7 @@ for i=1:size(label_list,1)%63:63%
         img_data = img(c_box(1):c_box(2),c_box(3):c_box(4),:);
         img_siz_data = cat(1,img_siz_data,size(img_data(:,:)));
         img_data_r = imresize(img_data, [80,120]);
-        c_hog = extractHOGFeatures(img_data_r, 'NumBins', 9, 'CellSize', [6, 6]);
+        c_hog = extractHOGFeatures(img_data_r, 'NumBins', 9, 'CellSize', [8, 8]);
         
         %GRADIENT MAG
         %log normalizes the exposure to a degree, much better results
@@ -42,9 +42,9 @@ for i=1:size(label_list,1)%63:63%
         y_filt = [-1,0,1];
         x_filt = [-1;0;1];
         
-        grad_y = conv2(img_data_r_bw,y_filt,'same').^2;
-        grad_x = conv2(img_data_r_bw,x_filt,'same').^2;
-        grad_mag = sqrt(grad_y + grad_x);
+       % grad_y = conv2(img_data_r_bw,y_filt,'same').^2;
+       % grad_x = conv2(img_data_r_bw,x_filt,'same').^2;
+       % grad_mag = sqrt(grad_y + grad_x);
         
         %figure; imagesc(grad_mag); axis image; colormap gray
         %figure; imagesc(img_data); axis image; colormap gray
@@ -52,16 +52,18 @@ for i=1:size(label_list,1)%63:63%
         
         %SHAPE
         %Morphological disk blurring for general shape information
-        element = strel('disk', 5);
-        supp = imopen(img_data_r_bw, element);
+       % element = strel('disk', 5);
+       % supp = imopen(img_data_r_bw, element);
         %figure; imagesc(supp); axis image; colormap gray
        
-        feat_vec = cat(2,c_hog,reshape(grad_mag,1,[]),reshape(supp,1,[]));
+        feat_vec = c_hog;%cat(2,c_hog,reshape(grad_mag,1,[]),reshape(supp,1,[]));
         norm_factor = max(abs(feat_vec));
         img_vec = cat(1,img_vec,feat_vec/norm_factor);
         
         %idx
         dirA = cat(1, dirA, rad2deg(c_alpha));
+        norm_factor = max(abs(dirA));
+        dirA = dirA/norm_factor;
         %SIFT(features)
         %[keypoints,desc] = vl_sift(img_data_r);
         %[keypoints_g,desc_g] = vl_sift(mag_grad);
@@ -148,9 +150,14 @@ model_11 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 [cv,idx] = sampleData(bin12,bin1);
 model_12 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1'); %This model_ is only for verifying bin12 items essentially 150-180d
 
-%e.g.
-[svmOut,~,~] = svmpredict(1,double(bin1(1,:)),model_1,'b 1'); %Output 100%
-[svmOut,~,~] = svmpredict(1,double(bin1(1,:)),model_2,'b 1'); %Output 0% 100~=0 Match
+% %Validate
+for i=1:size(bin1,1)
+    [svmOut1a(i),~,~] = svmpredict(1,double(bin1(1,:)),model_1,'b 1'); %Output 100%
+    [svmOut1b(i),~,~] = svmpredict(1,double(bin1(1,:)),model_2,'b 1'); %Output 0% 100~=0 Match
+    endsa
 
-[svmOut,~,~] = svmpredict(1,double(bin2(2,:)),model_1,'b 1'); %Output 0%  
-[svmOut,~,~] = svmpredict(1,double(bin2(1,:)),model_2,'b 1'); %Output 100% 0~=100Match
+for i=1:size(bin2,1)
+    [svmOut2a(i),~,~] = svmpredict(1,double(bin2(2,:)),model_1,'b 1'); %Output 100%  
+    [svmOut2b(i),~,~] = svmpredict(1,double(bin2(1,:)),model_2,'b 1'); %Output 100% 
+    [svmOut2b(i),~,~] = svmpredict(1,double(bin2(1,:)),model_3,'b 1'); %Output 0% 0~=100Match
+end
