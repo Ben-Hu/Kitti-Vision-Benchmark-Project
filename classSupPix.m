@@ -13,7 +13,7 @@ windowFac = [im_siz(1)/window(1),im_siz(2)/window(2)];
 %360x1220, 20x20 window
 
 %% Load training data- + preprocess
-trainingSet = 1;
+trainingSet = 2;
 if trainingSet == 0
     origListing = dir(fullfile(TRAIN_ORIG_DIR,'um_000000.png'));
     segListing = dir(fullfile(TRAIN_SEG_DIR,'um_road_000000.png'));
@@ -58,7 +58,7 @@ for k=1:size(origImgStack,4)
     simg = segImgStack(:,:,k);
     rPixVal = max(reshape(simg,1,[]));
     smask = simg(:,:) >= rPixVal;
-    figure; imagesc(smask); axis image; colormap gray;
+    %figure; imagesc(smask); axis image; colormap gray;
     
     [labels,num_pix] = superpixels(cur_img,300);
     %BM = boundarymask(L);
@@ -104,7 +104,12 @@ for k=1:size(origImgStack,4)
         squished = imresize(pix_box, [20,20]);
         box_hog = extractHOGFeatures(squished,'NumBins', 9, 'CellSize', [6, 6]);
 
-        feat_vec = cat(2, hist_r, hist_g, hist_b, box_hog);
+        %Local Binary Patterns - texture features
+        %More neighbours = more detail around each pix.
+        %Much better results adding LBP information to feature descriptor
+        lbp = extractLBPFeatures(squished, 'NumNeighbors', 12);
+        
+        feat_vec = cat(2, hist_r, hist_g, hist_b, box_hog, lbp);
         normFactor = max(abs(feat_vec));
         
         %Find what class this feature belongs to 

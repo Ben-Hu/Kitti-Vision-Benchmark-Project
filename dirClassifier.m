@@ -2,7 +2,7 @@ clear all; close all;
 globals;
 %addpath(genpath('kitti_obj_devkit'));
 %using modified readLabels to take raw img_idx input
-data_set = 3;
+data_set = 2;
 if data_set == 0
     label_list = dir(fullfile(LABEL_DIR,'000063.txt'));
 elseif data_set == 1
@@ -13,6 +13,8 @@ elseif data_set == 3
     label_list = dir(fullfile(LABEL_DIR,'000*.txt'));
 else
     label_list = dir(fullfile(LABEL_DIR,'*.txt'));
+    %randomly sample the entire dataset
+    label_list = label_list(randsample(size(label_list,1),round(size(label_list,1)/3)));
 end
 %process labels for each image
 tdA = [];
@@ -34,21 +36,15 @@ for i=1:size(label_list,1)%63:63%
         %3 dimensional patch
         img_data = img(c_box(1):c_box(2),c_box(3):c_box(4),:);
         img_siz_data = cat(1,img_siz_data,size(img_data(:,:)));
-        img_data_r = imresize(img_data, [80,120]);
-        c_hog = extractHOGFeatures(img_data_r, 'NumBins', 9, 'CellSize', [8, 8]);
-        
+        img_data_r = imresize(img_data, [60,120]);
+        [c_hog,vis] = extractHOGFeatures(img_data_r, 'NumBins', 9, 'CellSize', [8, 8]);
+        %imshow(img_data_r); hold on; plot(vis);
         %GRADIENT MAG
         %log normalizes the exposure to a degree, much better results
         img_data_r_bw = log(rgb2gray(img_data_r)); 
         %img_data_r_bw = img_data_r(:,:,1);
         y_filt = [-1,0,1];
         x_filt = [-1;0;1];
-%         
-%         grad_y = conv2(img_data_r_bw,y_filt,'same').^2;
-%         grad_x = conv2(img_data_r_bw,x_filt,'same').^2;
-%         grad_mag = sqrt(grad_y + grad_x);
-        
-        %figure; imagesc(grad_mag); axis image; colormap gray
         %figure; imagesc(img_data); axis image; colormap gray
         %figure; imagesc(img_data_r); axis image; colormap gray
         
@@ -63,14 +59,15 @@ for i=1:size(label_list,1)%63:63%
         grad_mag = sqrt(grad_y + grad_x);
         %figure; imagesc(grad_mag); axis image; colormap gray
         
-%         element = padarray(fspecial('disk',15)>0, [25 45], 0);
-%         element = element(1:size(element,1)-1, 1:size(element,2)-1);
-%         test = activecontour(grad_mag, element)
-%         figure; imagesc(test); axis image;
+        element = padarray(fspecial('disk',15)>0, [15 45], 0);
+        element = element(1:size(element,1)-1, 1:size(element,2)-1);
+        act = activecontour(grad_mag, element);
+        act = imresize(act,size(act)/1.5);
+        %figure; imagesc(test); axis image;
         
         %bw = edge(img_data_r_bw, 'Canny', [0.1,0.40]);
         %figure; imagesc(bw); axis image; colormap gray
-        feat_vec = c_hog;%cat(2,c_hog,reshape(grad_mag,1,[]));%cat(2,c_hog,reshape(grad_mag,1,[]),reshape(supp,1,[]));%
+        feat_vec = cat(2,c_hog,reshape(act,1,[]));%cat(2,c_hog,reshape(grad_mag,1,[]));%cat(2,c_hog,reshape(grad_mag,1,[]),reshape(supp,1,[]));%
         norm_factor = max(abs(feat_vec));
         img_vec = cat(1,img_vec,feat_vec/norm_factor);
         
@@ -163,18 +160,19 @@ model_11 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 model_12 = svmtrain(idx,cv,'-c 0 -t 2 -g 0.07 -c 10 -b 1'); %This model_ is only for verifying bin12 items essentially 150-180d
 
 % %Validate
-for i=1:size(bin1,1)
+for i=1:size(bin1,1)/4
     [svmOut1a(i),~,~] = svmpredict(1,double(bin1(1,:)),model_1,'b 1'); %Output 100%
     [svmOut1b(i),~,~] = svmpredict(1,double(bin1(1,:)),model_2,'b 1'); %Output 0% 100~=0 Match
+    %[svmOut1c(i),~,~] = svmpredict(1,double(bin1(1,:)),model_3,'b 1'); %Output 0% 100~=0 Match   
 end
 
-for i=1:size(bin2,1)
+for i=1:size(bin2,1)/4
     [svmOut2a(i),~,~] = svmpredict(1,double(bin2(1,:)),model_1,'b 1'); %Output 0%  
     [svmOut2b(i),~,~] = svmpredict(1,double(bin2(1,:)),model_2,'b 1'); %Output 100% 
     %[svmOut2b(i),~,~] = svmpredict(1,double(bin2(1,:)),model_3,'b 1'); %Output 0% 0~=100Match
 end
 
-for i=1:size(bin3,1)
+for i=1:size(bin3,1)/4
     [svmOut3a(i),~,~] = svmpredict(1,double(bin3(1,:)),model_2,'b 1'); %Output 0%  
     [svmOut3b(i),~,~] = svmpredict(1,double(bin3(1,:)),model_3,'b 1'); %Output 100% 
 end

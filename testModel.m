@@ -1,7 +1,8 @@
 %% Testing the model
 test_img = double(imread(fullfile(TRAIN_ORIG_DIR,'um_000000.png')))/255;
 test_img = double(imread('data_road/testing/image_2/um_000031.png'))/255;
-test_img = double(imread('data_road/testing/image_2/um_000020.png'))/255;
+%test_img = double(imread('data_road/testing/image_2/um_000020.png'))/255;
+%test_img = double(imread(fullfile(TRAIN_ORIG_DIR,'um_000000.png')))/255;
 test_img = test_img(1:im_siz(1),1:im_siz(2),:);
 
 test = 1
@@ -48,5 +49,9 @@ end
 
 figure;imagesc(classified);axis image;colormap gray;
 figure;imagesc(classified+test_img);axis image;colormap gray;
+
+BM = boundarymask(rgb2gray(classified));
+figure; imshow(imoverlay(test_img,BM,'red'),'InitialMagnification',67)
+
 
 end
