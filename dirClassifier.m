@@ -2,7 +2,7 @@ clear all; close all;
 globals;
 %addpath(genpath('kitti_obj_devkit'));
 %using modified readLabels to take raw img_idx input
-data_set = 0;
+data_set = 4;
 if data_set == 0
     label_list = dir(fullfile(LABEL_DIR,'000063.txt'));
 elseif data_set == 1
@@ -21,6 +21,7 @@ tdA = [];
 dirA = [];
 %For tuning analysis
 img_siz_data = [];
+num_discarded = 0;
 for i=1:size(label_list,1)%63:63%
     [~,idx,~] = fileparts(label_list(i).name);
     obj = readLabel(LABEL_DIR, idx);
@@ -36,7 +37,8 @@ for i=1:size(label_list,1)%63:63%
         %3 dimensional patch
         img_data = img(c_box(1):c_box(2),c_box(3):c_box(4),:);
         img_siz_data = cat(1,img_siz_data,size(img_data(:,:)));
-        img_data_r = imresize(img_data, [60,120]);
+%         img_data_r = imresize(img_data, [60,120]);
+        img_data_r = imresize(img_data, [100,300]);
         [c_hog,vis] = extractHOGFeatures(img_data_r, 'NumBins', 9, 'CellSize', [8, 8]);
         %imshow(img_data_r); hold on; plot(vis);
         %GRADIENT MAG
@@ -54,25 +56,40 @@ for i=1:size(label_list,1)%63:63%
 %       supp = imopen(img_data_r_bw, element);
         %figure; imagesc(supp); axis image; colormap gray
        
-        grad_y = conv2(img_data_r_bw,y_filt,'same').^2;
-        grad_x = conv2(img_data_r_bw,x_filt,'same').^2;
-        grad_mag = sqrt(grad_y + grad_x);
-        %figure; imagesc(grad_mag); axis image; colormap gray
+%         grad_y = conv2(img_data_r_bw,y_filt,'same').^2;
+%         grad_x = conv2(img_data_r_bw,x_filt,'same').^2;
+%         grad_mag = sqrt(grad_y + grad_x);
+%         %figure; imagesc(grad_mag); axis image; colormap gray
+%         
+%         element = padarray(fspecial('disk',15)>0, [15 45], 0);
+%         element = element(1:size(element,1)-1, 1:size(element,2)-1);
+%         act = activecontour(grad_mag, element);
+%         %act = imresize(act,size(act)/1.5);
+%         %figure; imagesc(test); axis image;
         
-        element = padarray(fspecial('disk',15)>0, [15 45], 0);
-        element = element(1:size(element,1)-1, 1:size(element,2)-1);
-        act = activecontour(grad_mag, element);
-        %act = imresize(act,size(act)/1.5);
-        %figure; imagesc(test); axis image;
-        
-        imbw = rgb2gray(img_data);
-        points = detectSURFFeatures(imbw)
-        [desc,keyp] = extractFeatures(imbw, points);
-        
+%         points = detectSURFFeatures(rgb2gray(img_data_r));
+%         %Pick strongest x points from detected SURF features
+%         if size(points,1) < 3
+%             %fprintf('Image %s only had %d points\n',idx,size(points,1));
+%             num_discarded = num_discarded + 1;
+%             break;
+%         end
+%         top_points = points.selectStrongest(3);
+%         [desc,vpoints] = extractFeatures(rgb2gray(img_data_r),top_points);
+%         surf_vec = reshape(desc,1,[]);
+
+        %random sample from sift points
+        [keyp,desc] = vl_sift(img_data_r_bw);
+        if size(desc,2) < 10
+            fprintf('Image %s only had %d points\n',idx,size(desc,2));
+            break
+        end
+        sift_samp = randsample(1:size(desc,2),20,true);
+        sift_vec = reshape(desc(:,sift_samp),1,[]); %ds3 is good
         
         %bw = edge(img_data_r_bw, 'Canny', [0.1,0.40]);
         %figure; imagesc(bw); axis image; colormap gray
-        feat_vec = cat(2,c_hog,reshape(act,1,[]));%cat(2,c_hog,reshape(grad_mag,1,[]));%cat(2,c_hog,reshape(grad_mag,1,[]),reshape(supp,1,[]));%
+        feat_vec = cat(2,c_hog,sift_vec);%cat(2,c_hog,reshape(act,1,[]));%cat(2,c_hog,reshape(grad_mag,1,[]));%cat(2,c_hog,reshape(grad_mag,1,[]),reshape(supp,1,[]));%
         norm_factor = max(abs(feat_vec));
         img_vec = cat(1,img_vec,feat_vec/norm_factor);
         
