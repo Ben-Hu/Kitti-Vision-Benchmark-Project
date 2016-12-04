@@ -23,6 +23,7 @@ dirA = [];
 %For tuning analysis
 img_siz_data = [];
 num_discarded = 0;
+numlt40 = 0;
 for i=1:size(label_list,1)%63:63%
     [~,idx,~] = fileparts(label_list(i).name);
     obj = readLabel(LABEL_DIR, idx);
@@ -37,6 +38,13 @@ for i=1:size(label_list,1)%63:63%
         c_alpha = c_obj.alpha;
         %3 dimensional patch
         img_data = img(c_box(1):c_box(2),c_box(3):c_box(4),:);
+        if min(size(img_data,1),size(img_data,2)) < 40
+            %do not process objects with boxes less than 40px in smallest
+            %dimension
+            figure; imagesc(img_data); axis image;
+            numlt40 = numlt40 + 1;
+            break;
+        end
         img_siz_data = cat(1,img_siz_data,size(img_data(:,:)));
 %         img_data_r = imresize(img_data, [60,120]);
         img_data_r = imresize(img_data, [104,154]);
@@ -69,15 +77,15 @@ for i=1:size(label_list,1)%63:63%
 %         %figure; imagesc(test); axis image;
         
         %SURF POINTS
-        points = detectSURFFeatures(img_data_r_bw);
+        points = detectSURFFeatures(rgb2gray(img_data));
         %Pick strongest x points from detected SURF features
-        if size(points,1) < 10
+        if size(points,1) < 5
             fprintf('Image %s only had %d points for obj %d\n',idx,size(points,1),j);
             num_discarded = num_discarded + 1;
             continue;
         end
-        top_points = points.selectStrongest(10);
-        [desc,vpoints,vis] = extractHOGFeatures(img_data_r_bw,top_points,'NumBins', 12, 'CellSize', [8, 8], 'BlockSize', [2,2],'UseSignedOrientation', true);
+        top_points = points.selectStrongest(5);
+        [desc,vpoints,vis] = extractHOGFeatures(img_data,top_points,'NumBins', 12, 'CellSize', [8, 8], 'BlockSize', [2,2],'UseSignedOrientation', true);
         surf_vec = reshape(desc,1,[]);
         %figure;imshow(img_data_r);hold on;plot(vis,'Color','green');
         

@@ -7,8 +7,8 @@ addpath(genpath('dpm'));
 %Get dpm detections:
 img = single(imread(fullfile(CAR_IMG_L, '000021.png')))/255; %-180
 %img = single(imread(fullfile(TEST_CAR_IMG_L, '000005.png')))/255; %fails
-%img = single(imread(fullfile(TEST_CAR_IMG_L, '000037.png')))/255;
-img = single(imread(fullfile(TEST_CAR_IMG_L, '000033.png')))/255;
+img = single(imread(fullfile(TEST_CAR_IMG_L, '000037.png')))/255;
+%img = single(imread(fullfile(TEST_CAR_IMG_L, '000033.png')))/255;
 %img = single(imread(fullfile(TEST_CAR_IMG_L, '000100.png')))/255;
 %img = single(imread(fullfile(TEST_CAR_IMG_L, '000202.png')))/255;
 %img = single(imread(fullfile(TEST_CAR_IMG_L, '001000.png')))/255;
@@ -67,7 +67,6 @@ for i=1:size(detections,1)
 %     
 
 
-
     points = detectSURFFeatures(img_data_r_bw);
     %Pick strongest x points from detected SURF features
     if size(points,1) < 10
@@ -86,7 +85,7 @@ for i=1:size(detections,1)
     %load('car_dir_model_900s_C8.mat');
     %load('car_dir_model_sift_s20_dA_c8_w100x300.mat');
     %load('car_dir_d4_b13-19_c8_n12_w104-154.mat');
-    
+    load('car_dir_model_surfxhog_c5560e4.mat');
     models = [model_1,model_2,model_3,model_4,model_5,model_6,model_7,model_8,...
         model_9,model_10,model_11,model_12,model_1];
     
@@ -101,6 +100,7 @@ for i=1:size(detections,1)
         [svmOut2,~,~] = svmpredict(1,pred_vec,pred(i,2),'-b 1');
         if svmOut1~=svmOut2
             dir_guess = i;
+            c = 1;
             break
         end
     end
@@ -108,10 +108,11 @@ for i=1:size(detections,1)
     
     if j==12 && dir_guess == 1
         fprintf('Not confident about orientation of object\n');
+        c = 0;
     end
     dir_res = bins(dir_guess);
     fprintf('Estimated orientation is %d\n',dir_res);
-    figure; imagesc(img_data_r); axis image; title(sprintf('D:%d',dir_res));
+    figure; imagesc(img_data_r); axis image; title(sprintf('D:%d C:%d',dir_res, c));
     %load('car_dir_model_sift_s20_dA_c8_w100x300.mat');    fprintf('Direction is %d\n',dir_res);
     
 %     %Classify for first model_
