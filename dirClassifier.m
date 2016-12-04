@@ -15,7 +15,7 @@ elseif data_set == 3
 else
     label_list = dir(fullfile(LABEL_DIR,'*.txt'));
     %randomly sample the entire dataset
-    label_list = label_list(randsample(size(label_list,1),round(size(label_list,1)/3)));
+    %label_list = label_list(randsample(size(label_list,1),round(size(label_list,1)/3)));
 end
 %process labels for each image
 tdA = [];
