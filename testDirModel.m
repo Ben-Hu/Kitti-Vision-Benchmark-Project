@@ -76,13 +76,13 @@ for i=1:size(detections,1)
 
     points = detectSURFFeatures(img_data_r_bw);
     %Pick strongest x points from detected SURF features
-    if size(points,1) < 10
+    if size(points,1) < 3
         fprintf('Image %s only had %d points for obj %d\n',idx,size(points,1),j);
         num_discarded = num_discarded + 1;
         continue;
     end
-    top_points = points.selectStrongest(10);
-    [desc,vpoints,vis] = extractHOGFeatures(img_data_r_bw,top_points,'NumBins', 12, 'CellSize', [8, 8], 'BlockSize', [2,2],'UseSignedOrientation', true);
+    top_points = points.selectStrongest(3);
+    [desc,vpoints,vis] = extractHOGFeatures(img_data,top_points,'NumBins', 12, 'CellSize', [2, 2], 'BlockSize', [4,4],'UseSignedOrientation', true,'BlockOverlap', [3,3]);
     surf_vec = reshape(desc,1,[]);
 
     feat_vec = surf_vec;%c_hog;%sift_vec;%cat(2,c_hog,sift_vec); %cat(2,c_hog,reshape(grad_mag,1,[]),reshape(supp,1,[]));
@@ -92,7 +92,7 @@ for i=1:size(detections,1)
     %load('car_dir_model_900s_C8.mat');
     %load('car_dir_model_sift_s20_dA_c8_w100x300.mat');
     %load('car_dir_d4_b13-19_c8_n12_w104-154.mat');
-    load('car_dir_model_surfxhog_c5560e4.mat');
+    %load('car_dir_model_surfxhog_c5560e4.mat');
     models = [model_1,model_2,model_3,model_4,model_5,model_6,model_7,model_8,...
         model_9,model_10,model_11,model_12,model_1];
     

@@ -77,17 +77,18 @@ for i=1:size(label_list,1)%63:63%
 %         %figure; imagesc(test); axis image;
         
         %SURF POINTS
+        img_data = img_data_r;
         points = detectSURFFeatures(rgb2gray(img_data));
         %Pick strongest x points from detected SURF features
-        if size(points,1) < 5
+        if size(points,1) < 3
             fprintf('Image %s only had %d points for obj %d\n',idx,size(points,1),j);
             num_discarded = num_discarded + 1;
             continue;
         end
-        top_points = points.selectStrongest(5);
-        [desc,vpoints,vis] = extractHOGFeatures(img_data,top_points,'NumBins', 12, 'CellSize', [8, 8], 'BlockSize', [2,2],'UseSignedOrientation', true);
+        top_points = points.selectStrongest(3);
+        [desc,vpoints,vis] = extractHOGFeatures(img_data,top_points,'NumBins', 12, 'CellSize', [2, 2], 'BlockSize', [4,4],'UseSignedOrientation', true,'BlockOverlap', [3,3]);
         surf_vec = reshape(desc,1,[]);
-        %figure;imshow(img_data_r);hold on;plot(vis,'Color','green');
+        %figure;imshow(img_data);axis image;hold on;plot(vis,'Color','green');
         
         %random sample from sift points
 %         [keyp,desc] = vl_sift(img_data_r_bw);
