@@ -80,6 +80,9 @@ for i=1:1%size(boxes,1)
     carbox.back_box = back_box;
     carbox.front_box = front_box;
     img_boxes = cat(1,img_boxes,carbox);
+    
+    %draw arrow using vectarrow from one corner of front box to the
+    %corresponding arrow on the back box
 end
 
 %end

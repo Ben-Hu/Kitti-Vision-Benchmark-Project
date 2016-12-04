@@ -2,7 +2,7 @@ clear all; close all;
 globals;
 %addpath(genpath('kitti_obj_devkit'));
 %using modified readLabels to take raw img_idx input
-data_set = 2;
+data_set = 0;
 if data_set == 0
     label_list = dir(fullfile(LABEL_DIR,'000063.txt'));
 elseif data_set == 1
@@ -62,8 +62,13 @@ for i=1:size(label_list,1)%63:63%
         element = padarray(fspecial('disk',15)>0, [15 45], 0);
         element = element(1:size(element,1)-1, 1:size(element,2)-1);
         act = activecontour(grad_mag, element);
-        act = imresize(act,size(act)/1.5);
+        %act = imresize(act,size(act)/1.5);
         %figure; imagesc(test); axis image;
+        
+        imbw = rgb2gray(img_data);
+        points = detectSURFFeatures(imbw)
+        [desc,keyp] = extractFeatures(imbw, points);
+        
         
         %bw = edge(img_data_r_bw, 'Canny', [0.1,0.40]);
         %figure; imagesc(bw); axis image; colormap gray
@@ -79,7 +84,10 @@ for i=1:size(label_list,1)%63:63%
         %[keypoints_g,desc_g] = vl_sift(mag_grad);
         %there are alot of keypoints, need to extract relevant ones
         %figure; imagesc(mag_grad); axis image; colormap gray;   
-        
+%         imbw = rgb2gray(img_data);
+   
+
+
         %find which feature descriptor map to which items by using
         %reference images/descriptors for say a license plate, tire, etc.
         %and only using the descriptors of minimum euclidean distance,

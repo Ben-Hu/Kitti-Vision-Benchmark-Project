@@ -33,7 +33,7 @@ end
 % Build the 3d point cloud
 colors = reshape(img,[],3);
 pc_o = pointCloud(pc, 'Color', colors);
-
+pc_o = pcdenoise(pc_o);
 % show the point cloud
-% pcshow(pc_o);
+% pcshow(pc_o, 'VerticalAxis','X','MarkerSize',300); hold on;
 end
