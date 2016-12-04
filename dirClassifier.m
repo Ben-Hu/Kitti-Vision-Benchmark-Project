@@ -41,7 +41,7 @@ for i=1:size(label_list,1)%63:63%
         if min(size(img_data,1),size(img_data,2)) < 40
             %do not process objects with boxes less than 40px in smallest
             %dimension
-            figure; imagesc(img_data); axis image;
+            %figure; imagesc(img_data); axis image;
             numlt40 = numlt40 + 1;
             break;
         end
@@ -214,7 +214,7 @@ model_12 = svmtrain(idx12,cv12,'-c 0 -t 2 -g 0.07 -c 10 -b 1'); %This model_ is 
 %     [svmOut1b(i),~,~] = svmpredict(1,double(bin1(1,:)),model_2,'b 1'); %Output 0% 100~=0 Match
 %     %[svmOut1c(i),~,~] = svmpredict(1,double(bin1(1,:)),model_3,'b 1'); %Output 0% 100~=0 Match   
 % end
-% % 
+% % % 
 % for i=1:size(bin2,1)/4
 %     [svmOut2a(i),~,~] = svmpredict(1,double(bin2(1,:)),model_1,'b 1'); %Output 0%  
 %     [svmOut2b(i),~,~] = svmpredict(1,double(bin2(1,:)),model_2,'b 1'); %Output 100% 

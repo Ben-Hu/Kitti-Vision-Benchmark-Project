@@ -32,6 +32,13 @@ for i=1:size(detections,1)
     %3 dimensional patch
     img_data = img(c_box(1):c_box(2),c_box(3):c_box(4),:);
     %img_siz_data = cat(1,img_siz_data,size(img_data(:,:)));
+    if min(size(img_data,1),size(img_data,2)) < 40
+        %do not process objects with boxes less than 40px in smallest
+        %dimension
+        fprintf('object %d lt 40px, not guessing\n',i);
+        break;
+    end
+    
     img_data_r = imresize(img_data, [104,154]);
     [c_hog,vis] = extractHOGFeatures(img_data_r, 'NumBins', 12, 'CellSize', [8, 8], 'BlockSize', [13,19],'UseSignedOrientation', true);
     %imshow(img_data_r); hold on; plot(vis);
