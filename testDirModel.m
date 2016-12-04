@@ -5,14 +5,14 @@ globals;
 addpath(genpath('dpm'));
 %addpath(genpath('vlfeat-0.9.20'));
 %Get dpm detections:
-img = single(imread(fullfile(CAR_IMG_L, '000021.png')))/255; %-180
+%img = single(imread(fullfile(CAR_IMG_L, '000021.png')))/255; %-180
 %img = single(imread(fullfile(TEST_CAR_IMG_L, '000005.png')))/255; %fails
-img = single(imread(fullfile(TEST_CAR_IMG_L, '000037.png')))/255;
+%img = single(imread(fullfile(TEST_CAR_IMG_L, '000037.png')))/255;
 %img = single(imread(fullfile(TEST_CAR_IMG_L, '000033.png')))/255;
-%img = single(imread(fullfile(TEST_CAR_IMG_L, '000100.png')))/255;
-%img = single(imread(fullfile(TEST_CAR_IMG_L, '000202.png')))/255;
-%img = single(imread(fullfile(TEST_CAR_IMG_L, '001000.png')))/255;
-img = fliplr(img);
+img = single(imread(fullfile(TEST_CAR_IMG_L, '000100.png')))/255;
+img = single(imread(fullfile(TEST_CAR_IMG_L, '000202.png')))/255;
+img = single(imread(fullfile(TEST_CAR_IMG_L, '001000.png')))/255;
+%img = fliplr(img);
 %figure; imagesc(img); axis image;
 data = load('dpm/VOC2010/car_final.mat');
 model_d = data.model;
@@ -36,11 +36,11 @@ for i=1:size(detections,1)
         %do not process objects with boxes less than 40px in smallest
         %dimension
         fprintf('object %d lt 40px, not guessing\n',i);
-        break;
+        continue;
     end
     
     img_data_r = imresize(img_data, [104,154]);
-    [c_hog,vis] = extractHOGFeatures(img_data_r, 'NumBins', 12, 'CellSize', [8, 8], 'BlockSize', [13,19],'UseSignedOrientation', true);
+    %[c_hog,vis] = extractHOGFeatures(img_data_r, 'NumBins', 12, 'CellSize', [8, 8], 'BlockSize', [13,19],'UseSignedOrientation', true);
     %imshow(img_data_r); hold on; plot(vis);
     
     %GRADIENT MAG
@@ -73,16 +73,14 @@ for i=1:size(detections,1)
 %     sift_vec = reshape(desc(:,sift_samp),1,[]); 
 %     
 
-
-    points = detectSURFFeatures(img_data_r_bw);
+    points = detectSURFFeatures(rgb2gray(img_data));
     %Pick strongest x points from detected SURF features
-    if size(points,1) < 10
-        fprintf('Image %s only had %d points for obj %d\n',idx,size(points,1),j);
-        num_discarded = num_discarded + 1;
+    if size(points,1) < 5
+        fprintf('Image only had %d points for obj %d\n',size(points,1),i);
         continue;
     end
-    top_points = points.selectStrongest(10);
-    [desc,vpoints,vis] = extractHOGFeatures(img_data_r_bw,top_points,'NumBins', 12, 'CellSize', [8, 8], 'BlockSize', [2,2],'UseSignedOrientation', true);
+    top_points = points.selectStrongest(5);
+    [desc,vpoints,vis] = extractHOGFeatures(rgb2gray(img_data),top_points,'NumBins', 12, 'CellSize', [8, 8], 'BlockSize', [2,2],'UseSignedOrientation', true);
     surf_vec = reshape(desc,1,[]);
 
     feat_vec = surf_vec;%c_hog;%sift_vec;%cat(2,c_hog,sift_vec); %cat(2,c_hog,reshape(grad_mag,1,[]),reshape(supp,1,[]));
@@ -92,7 +90,9 @@ for i=1:size(detections,1)
     %load('car_dir_model_900s_C8.mat');
     %load('car_dir_model_sift_s20_dA_c8_w100x300.mat');
     %load('car_dir_d4_b13-19_c8_n12_w104-154.mat');
-    load('car_dir_model_surfxhog_c5560e4.mat');
+    load('car_dir_model_surfxhog_lt40_5kp_gray_218b.mat'); %okay
+    %load('car_dir_model_surfxhog_c2_b4_8b0c391_fin.mat');
+    
     models = [model_1,model_2,model_3,model_4,model_5,model_6,model_7,model_8,...
         model_9,model_10,model_11,model_12,model_1];
     
@@ -115,11 +115,11 @@ for i=1:size(detections,1)
     
     if j==12 && dir_guess == 1
         fprintf('Not confident about orientation of object\n');
-        c = 0;
+        c = 0;s
     end
     dir_res = bins(dir_guess);
     fprintf('Estimated orientation is %d\n',dir_res);
-    figure; imagesc(img_data_r); axis image; title(sprintf('D:%d C:%d',dir_res, c));
+    figure; imagesc(img_data); axis image; title(sprintf('D:%d C:%d',dir_res, c));
     %load('car_dir_model_sift_s20_dA_c8_w100x300.mat');    fprintf('Direction is %d\n',dir_res);
     
 %     %Classify for first model_
