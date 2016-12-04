@@ -3,7 +3,7 @@ globals;
 addpath(genpath('vlfeat-0.9.20'));
 %addpath(genpath('kitti_obj_devkit'));
 %using modified readLabels to take raw img_idx input
-data_set = 2;
+data_set = 4;
 if data_set == 0
     label_list = dir(fullfile(LABEL_DIR,'000063.txt'));
 elseif data_set == 1
@@ -23,6 +23,7 @@ dirA = [];
 %For tuning analysis
 img_siz_data = [];
 num_discarded = 0;
+numlt40 = 0;
 for i=1:size(label_list,1)%63:63%
     [~,idx,~] = fileparts(label_list(i).name);
     obj = readLabel(LABEL_DIR, idx);
@@ -37,10 +38,17 @@ for i=1:size(label_list,1)%63:63%
         c_alpha = c_obj.alpha;
         %3 dimensional patch
         img_data = img(c_box(1):c_box(2),c_box(3):c_box(4),:);
+        if min(size(img_data,1),size(img_data,2)) < 40
+            %do not process objects with boxes less than 40px in smallest
+            %dimension
+            figure; imagesc(img_data); axis image;
+            numlt40 = numlt40 + 1;
+            break;
+        end
         img_siz_data = cat(1,img_siz_data,size(img_data(:,:)));
 %         img_data_r = imresize(img_data, [60,120]);
         img_data_r = imresize(img_data, [104,154]);
-        [c_hog,vis] = extractHOGFeatures(img_data_r, 'NumBins', 12, 'CellSize', [8, 8], 'BlockSize', [13,19],'UseSignedOrientation', true);
+        %[c_hog,vis] = extractHOGFeatures(img_data_r, 'NumBins', 12, 'CellSize', [8, 8], 'BlockSize', [13,19],'UseSignedOrientation', true);
         %imshow(img_data_r); hold on; plot(vis);
         %GRADIENT MAG
         %log normalizes the exposure to a degree, much better results
@@ -69,15 +77,15 @@ for i=1:size(label_list,1)%63:63%
 %         %figure; imagesc(test); axis image;
         
         %SURF POINTS
-        points = detectSURFFeatures(img_data_r_bw);
+        points = detectSURFFeatures(rgb2gray(img_data));
         %Pick strongest x points from detected SURF features
-        if size(points,1) < 10
+        if size(points,1) < 5
             fprintf('Image %s only had %d points for obj %d\n',idx,size(points,1),j);
             num_discarded = num_discarded + 1;
             continue;
         end
-        top_points = points.selectStrongest(10);
-        [desc,vpoints,vis] = extractHOGFeatures(img_data_r_bw,top_points);
+        top_points = points.selectStrongest(5);
+        [desc,vpoints,vis] = extractHOGFeatures(img_data,top_points,'NumBins', 12, 'CellSize', [8, 8], 'BlockSize', [2,2],'UseSignedOrientation', true);
         surf_vec = reshape(desc,1,[]);
         %figure;imshow(img_data_r);hold on;plot(vis,'Color','green');
         
@@ -155,7 +163,7 @@ end
 min_bin = inf;
 for i=1:size(bins,2)-1
     eval(sprintf('csiz = size(bin%d,1);',i));
-    if csiz < min_bin
+    if csiz < min_bin 
         min_bin = csiz;
     end
 end
@@ -200,23 +208,23 @@ model_11 = svmtrain(idx11,cv11,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 [cv12,idx12] = sampleData(bin12,bin1,min_bin);
 model_12 = svmtrain(idx12,cv12,'-c 0 -t 2 -g 0.07 -c 10 -b 1'); %This model_ is only for verifying bin12 items essentially 150-180d
 
-% %Validate
-for i=1:size(bin1,1)/4
-    [svmOut1a(i),~,~] = svmpredict(1,double(bin1(1,:)),model_1,'b 1'); %Output 100%
-    [svmOut1b(i),~,~] = svmpredict(1,double(bin1(1,:)),model_2,'b 1'); %Output 0% 100~=0 Match
-    %[svmOut1c(i),~,~] = svmpredict(1,double(bin1(1,:)),model_3,'b 1'); %Output 0% 100~=0 Match   
-end
-
-for i=1:size(bin2,1)/4
-    [svmOut2a(i),~,~] = svmpredict(1,double(bin2(1,:)),model_1,'b 1'); %Output 0%  
-    [svmOut2b(i),~,~] = svmpredict(1,double(bin2(1,:)),model_2,'b 1'); %Output 100% 
-    %[svmOut2b(i),~,~] = svmpredict(1,double(bin2(1,:)),model_3,'b 1'); %Output 0% 0~=100Match
-end
-
-for i=1:size(bin3,1)/4
-    [svmOut3a(i),~,~] = svmpredict(1,double(bin3(1,:)),model_2,'b 1'); %Output 0%  
-    [svmOut3b(i),~,~] = svmpredict(1,double(bin3(1,:)),model_3,'b 1'); %Output 100% 
-end
+% % %Validate
+% for i=1:size(bin1,1)/4
+%     [svmOut1a(i),~,~] = svmpredict(1,double(bin1(1,:)),model_1,'b 1'); %Output 100%
+%     [svmOut1b(i),~,~] = svmpredict(1,double(bin1(1,:)),model_2,'b 1'); %Output 0% 100~=0 Match
+%     %[svmOut1c(i),~,~] = svmpredict(1,double(bin1(1,:)),model_3,'b 1'); %Output 0% 100~=0 Match   
+% end
+% % 
+% for i=1:size(bin2,1)/4
+%     [svmOut2a(i),~,~] = svmpredict(1,double(bin2(1,:)),model_1,'b 1'); %Output 0%  
+%     [svmOut2b(i),~,~] = svmpredict(1,double(bin2(1,:)),model_2,'b 1'); %Output 100% 
+%     %[svmOut2b(i),~,~] = svmpredict(1,double(bin2(1,:)),model_3,'b 1'); %Output 0% 0~=100Match
+% end
+% 
+% for i=1:size(bin3,1)/4
+%     [svmOut3a(i),~,~] = svmpredict(1,double(bin3(1,:)),model_2,'b 1'); %Output 0%  
+%     [svmOut3b(i),~,~] = svmpredict(1,double(bin3(1,:)),model_3,'b 1'); %Output 100% 
+% end
 
 % 1 m1 1 m2 0
 % 1 m1 1 m2 0

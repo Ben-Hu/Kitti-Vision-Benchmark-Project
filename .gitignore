@@ -15,9 +15,11 @@ result.mat
 dpm/*
 obj_training/*
 kitti_obj_devkit/*
+kitti_devkit/*
 *.m~
 *.asv
 data_car_left/*
 data_car_right/*
 tmp*
+umall*
 car_dir_model*
