@@ -38,7 +38,7 @@ for i=1:size(detections,1)
     
     %GRADIENT MAG
     %log normalizes the exposure to a degree, much better results
-    img_data_r_bw = log(rgb2gray(img_data_r)); 
+    img_data_r_bw = rgb2gray(img_data_r); 
     %img_data_r_bw = img_data_r(:,:,1);
 %     y_filt = [-1,0,1];
 %     x_filt = [-1;0;1];
@@ -65,7 +65,21 @@ for i=1:size(detections,1)
 %     sift_samp = randsample(1:size(desc,2),20,true);
 %     sift_vec = reshape(desc(:,sift_samp),1,[]); 
 %     
-    feat_vec = c_hog;%sift_vec;%cat(2,c_hog,sift_vec); %cat(2,c_hog,reshape(grad_mag,1,[]),reshape(supp,1,[]));
+
+
+
+    points = detectSURFFeatures(img_data_r_bw);
+    %Pick strongest x points from detected SURF features
+    if size(points,1) < 10
+        fprintf('Image %s only had %d points for obj %d\n',idx,size(points,1),j);
+        num_discarded = num_discarded + 1;
+        continue;
+    end
+    top_points = points.selectStrongest(10);
+    [desc,vpoints,vis] = extractHOGFeatures(img_data_r_bw,top_points,'NumBins', 12, 'CellSize', [8, 8], 'BlockSize', [2,2],'UseSignedOrientation', true);
+    surf_vec = reshape(desc,1,[]);
+
+    feat_vec = surf_vec;%c_hog;%sift_vec;%cat(2,c_hog,sift_vec); %cat(2,c_hog,reshape(grad_mag,1,[]),reshape(supp,1,[]));
     norm_factor = max(abs(feat_vec));
     pred_vec = double(feat_vec/norm_factor);
     
