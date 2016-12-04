@@ -69,17 +69,17 @@ im_siz = [360,1220];
         % update our "best" if we got a function with less error.
         if (val < curError)
            curError = val;
-           best = planeFunction;
+           best = normal;
         end
 
 
 
     end
-    
-    [m , n] = meshgrid(1:30,1:30);  
-    equa = solve(best, z);
-    o = eval(subs(equa, {x,y}, {m,n}));
-    mesh(m,n, o)
+%     
+%     [m , n] = meshgrid(1:30,1:30);  
+%     equa = solve(best, z);
+%     o = eval(subs(equa, {x,y}, {m,n}));
+%     mesh(m,n, o)
 
 
 end
