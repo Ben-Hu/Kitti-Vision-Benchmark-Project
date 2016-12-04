@@ -75,12 +75,14 @@ for i=1:size(detections,1)
 
     points = detectSURFFeatures(rgb2gray(img_data));
     %Pick strongest x points from detected SURF features
+
     if size(points,1) < 5
         fprintf('Image only had %d points for obj %d\n',size(points,1),i);
         continue;
     end
     top_points = points.selectStrongest(5);
     [desc,vpoints,vis] = extractHOGFeatures(rgb2gray(img_data),top_points,'NumBins', 12, 'CellSize', [8, 8], 'BlockSize', [2,2],'UseSignedOrientation', true);
+
     surf_vec = reshape(desc,1,[]);
 
     feat_vec = surf_vec;%c_hog;%sift_vec;%cat(2,c_hog,sift_vec); %cat(2,c_hog,reshape(grad_mag,1,[]),reshape(supp,1,[]));
