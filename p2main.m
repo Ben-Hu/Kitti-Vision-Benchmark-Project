@@ -18,7 +18,9 @@ boxes = process(img, model_d, -0.5);
 f = k2(1,1);
 
 [orientations, boxes] = getCars(img);
-boxes_3d = boundingBox3(boxes,dm,f);
+
+% TODO: Needs pitch, roll, yaw
+boxes_3d = boundingBox3(boxes,dm,f,size(img,2)/2, size(img,1)/2, 0,0,0);
 pc = getPointCloud(img,dm,f);
 pcshow(pc, 'VerticalAxis','X','MarkerSize',300); hold on;
 plotBoxes3(boxes_3d);
