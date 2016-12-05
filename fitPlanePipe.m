@@ -29,7 +29,6 @@ highP = buildHighP(TRAIN_SEG_DIR);
     pc_o = getPointCloud(img, depth, f);
     
     % road seg
-    % TODO: requires model
     rdSeg = segRoad(img, model);
         
     [normal, error] = bestPlane(depth, rdSeg, highP);

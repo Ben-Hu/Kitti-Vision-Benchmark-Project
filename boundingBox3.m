@@ -1,4 +1,4 @@
-function [img_boxes]=boundingBox3(boxes,dm,f,px,py)
+function [img_boxes]=boundingBox3(boxes,dm,f,px,py, roll, pitch, yaw)
 
 img_boxes = [];
 for i=1:size(boxes,1)
@@ -60,9 +60,31 @@ for i=1:size(boxes,1)
         back_box(j,1) = new_x;
         back_box(j,2) = new_y;
     end
+    
+    
+    a = deg2rad(roll); %a in deg, yaw wrt observer
+    b = deg2rad(pitch);
+    c = deg2rad(yaw);
+    Rx = [1,0,0;0,cos(a),-sin(a);0,sin(a),cos(a)]; %roll
+    Ry = [cos(b),0,sin(b);0,1,0;-sin(b),0,cos(b)]; %pitch -- this + angle of orientation
+    Rz = [cos(c),-sin(c),0;sin(c),cos(c),0;0,0,1]; %yaw
+    Rf = Rx * Ry * Rz;
+    
+    % Translate to origin, rotate about axis, translate back
+    m = [(front_box(1,1) + ffront_boxr(3,1))/2, (front_box(1,2) + front_box(2,2))/2, (front_box(1,3) + front_box(3,3))/2];
+    front_box = front_box - m;
+    front_box = front_box*Rf;
+    front_box = front_box + m;
+
+    mb = [(back_box(1,1) + back_box(3,1))/2, (back_box(1,2) + back_box(2,2))/2, (back_box(1,3) + back_box(3,3))/2];
+    back_box = back_box - m;
+    back_box = back_box*Rf;
+    back_box = back_box + m;
+
     carbox.back_box = back_box;
     carbox.front_box = front_box;
     img_boxes = cat(1,img_boxes,carbox);
+       
 end
 
 end
