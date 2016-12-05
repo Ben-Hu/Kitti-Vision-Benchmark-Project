@@ -17,7 +17,7 @@ for i=1:numel(imgs)
     
     seg = segRoad(img, model);
     BM = boundarymask(rgb2gray(seg));
-    figure('visible', 'off'); imshow(imoverlay(img,BM,'red'))%,'InitialMagnification',67)
+    figure('visible', 'off'); imshow(imoverlay(img+seg,BM,'red'))%,'InitialMagnification',67)
     
     [~,idx,~] = fileparts(imgs(i).name);
     dispmap = disparity(img,imgr);
@@ -34,7 +34,7 @@ for i=1:numel(imgs)
     
     res = getframe;
     
-    frame = im2frame(res);
+    frame = im2frame(res.cdata);
     writeVideo(writerObj, frame);
 
 end
