@@ -1,26 +1,11 @@
-%function [img_boxes]=boundingBox3(boxes,dm,f)
-img = double(imread(fullfile(TRAIN_ORIG_DIR,'um_000033.png')))/256;
-imgl = rgb2gray(double(imread(fullfile(TRAIN_ORIG_DIR,'um_000033.png')))/256);
-imgr = rgb2gray(double(imread(fullfile(R_TRAIN_ORIG_DIR,'um_000033.png')))/256);
-dispmap = disparity(imgl,imgr);
-P2 = getMatrix(TEST_CALIB_DIR,'P2','uu_000073');
-P3 = getMatrix(TEST_CALIB_DIR,'P3','uu_000073');
-[k2,r2,t2] = Krt_from_P(P2);
-[k3,r3,t3] = Krt_from_P(P3);
-dm = depthMap(dispmap,k2(1,1),abs(t3(1)-t2(1)));
-
-data = load('dpm/VOC2010/car_final.mat');
-model_d = data.model;
-boxes = process(img, model_d, -0.5);
-showboxes(img, boxes);
-
-f = k2(1,1);
-py = size(dm,2)/2;
-px = size(dm,1)/2;
+function [img_boxes]=boundingBox3(boxes,dm,f)
+py = size(dm,1)/2;
+px = size(dm,2)/2;
 
 img_boxes = [];
-for i=1:1%size(boxes,1)
+for i=1:size(boxes,1)
     bounds = boxes(i,1:4);
+    %swap x and y
     y1 = round(bounds(1));
     x1 = round(bounds(2));
     y2 = round(bounds(3));
@@ -46,9 +31,9 @@ for i=1:1%size(boxes,1)
     %Filter out any outlier depth information we still have
     dm_car(dm_car<0) = 0;
     
-    figure; imagesc(act); axis image; colormap gray;
-    figure; imagesc(dm_patch); axis image; colormap gray;
-    figure; imagesc(dm_patch.*act); axis image; colormap gray;
+    %figure; imagesc(act); axis image; colormap gray;
+    %figure; imagesc(dm_patch); axis image; colormap gray;
+    %figure; imagesc(dm_patch.*act); axis image; colormap gray;
     
     %for each corner of the box, find the world coordinates of the 
     %front face of the car, minimum depth in our mask of non-zero value
@@ -65,7 +50,7 @@ for i=1:1%size(boxes,1)
         front_box(j,2) = new_y;
     end
     
-    back_Z = max(dm_car(:));
+    back_Z = min(max(dm_car(:)),front_Z+5);
     back_box = [x1,y1,back_Z;x1,y2,back_Z;...
     x2,y1,back_Z;x2,y2,back_Z];
     for j=1:size(back_box,1)
@@ -80,9 +65,6 @@ for i=1:1%size(boxes,1)
     carbox.back_box = back_box;
     carbox.front_box = front_box;
     img_boxes = cat(1,img_boxes,carbox);
-    
-    %draw arrow using vectarrow from one corner of front box to the
-    %corresponding arrow on the back box
 end
 
-%end
+end

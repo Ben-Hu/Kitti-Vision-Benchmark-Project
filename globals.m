@@ -14,8 +14,7 @@ R_TEST_DIR=fullfile(DATA_DIR,'data_road_right/testing/image_3');
 R_TRAIN_ORIG_DIR=fullfile(DATA_DIR,'data_road_right/training/image_3');
 
 %Saved processing output
-DISPARITY_DIR=fullfile(DATA_DIR,'disparityTraining');
-DEPTH_DIR=fullfile(DATA_DIR,'depthTraining');
+DISPARITY_DIR=fullfile(DATA_DIR,'disparity');
 
 %%OBJECT
 TEST_CAR_IMG_L='data_car_left/testing/image_2';

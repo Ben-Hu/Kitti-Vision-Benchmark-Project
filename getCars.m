@@ -5,11 +5,10 @@ function [orientations,boxes] = getCars(img);
     %detections 2d bounding boxes for cars
     globals;
     addpath(genpath('dpm'));
-
     data = load('dpm/VOC2010/car_final.mat');
     model_d = data.model;
     detections = process(img, model_d, -0.5);
-    showboxes(img, detections);
+    %showboxes(img, detections);
     
     boxes = [];
     orientations = [];
@@ -80,8 +79,8 @@ function [orientations,boxes] = getCars(img);
         dir_res = bins(dir_guess);
         fprintf('Estimated orientation is %d\n',dir_res);
         %figure; imagesc(img_data); axis image; title(sprintf('D:%d C:%d',dir_res, c));
-        boxes = cat(1,boxes,detections(i,1:4))
-        orientations = cat(1,orientations,[deg2rad(dir_res),c]);
+        boxes = cat(1,boxes,detections(i,1:4));
+        orientations = cat(1,orientations,deg2rad(dir_res));
 
         % Logic for what is happening above with the pred array:    
         %     %Classify for first model_
