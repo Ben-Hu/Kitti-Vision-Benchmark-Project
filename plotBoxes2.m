@@ -7,8 +7,8 @@ img = double(imread(fullfile(TRAIN_ORIG_DIR,'um_000033.png')))/256;
 imgl = rgb2gray(double(imread(fullfile(TRAIN_ORIG_DIR,'um_000033.png')))/256);
 imgr = rgb2gray(double(imread(fullfile(R_TRAIN_ORIG_DIR,'um_000033.png')))/256);
 dispmap = disparity(imgl,imgr);
-P2 = getMatrix(TEST_CALIB_DIR,'P2','uu_000073');
-P3 = getMatrix(TEST_CALIB_DIR,'P3','uu_000073');
+P2 = getMatrix(TEST_CALIB_DIR,'P2','um_000073');
+P3 = getMatrix(TEST_CALIB_DIR,'P3','um_000073');
 [k2,r2,t2] = Krt_from_P(P2);
 [k3,r3,t3] = Krt_from_P(P3);
 dm = depthMap(dispmap,k2(1,1),abs(t3(1)-t2(1)));
@@ -22,8 +22,12 @@ P = P2;
 f = k(1,1);
 px = size(dm,1)/2;
 py = size(dm,2)/2;
-boxes_3d = boundingBox3(boxes,dm,f,px,py);
+boxes_3d = boundingBox3(boxes,dm,f,px,py,0,0,0);
 figure; imagesc(img); axis image; hold on;
+
+
+xoff = -420;
+yoff = 420;
 for i=1:size(boxes_3d,1)
     cur_boxes = boxes_3d(i,:);
     front = cur_boxes.front_box;
@@ -37,23 +41,23 @@ for i=1:size(boxes_3d,1)
     
     pixf1 = P * [xl;yb;zf;1];
     pixf1 = pixf1/pixf1(3);
-    x1 = pixf1(1);
-    y1 = pixf1(2);
+    x1 = pixf1(1) + xoff;
+    y1 = pixf1(2) + yoff;
     
     pixf2 = P * [xr;yt;zf;1];
     pixf2 = pixf2/pixf2(3);
-    x2 = abs(pixf2(1));
-    y2 = abs(pixf2(2));
+    x2 = pixf2(1) + xoff;
+    y2 = pixf2(2) + yoff;
     
     pixb1 = P * [xl;yb;zb;1];
     pixb1 = pixb1/pixb1(3);
-    x1b = pixb1(1);
-    y1b = pixb1(2);
+    x1b = pixb1(1) + xoff;
+    y1b = pixb1(2) + yoff;
     
     pixb2 = P * [xr;yt;zb;1];
     pixb2 = pixb2/pixb2(3);
-    x2b = pixb2(1);
-    y2b = pixb2(2);
+    x2b = pixb2(1) + xoff;
+    y2b = pixb2(2) + yoff;
    
     xpb = [x1b,x2b,x2b,x1b,x1b];
     ypb = [y1b,y1b,y2b,y2b,y1b];

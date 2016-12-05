@@ -8,7 +8,6 @@ for i=1:size(boxes,1)
     x1 = round(bounds(2));
     y2 = round(bounds(3));
     x2 = round(bounds(4));
-    %apply a gaussian element-wise over the patch of the box
     dm_patch = dm(x1:x2, y1:y2); 
     
     %Mask out the depth information of the car using active contour models
@@ -71,7 +70,7 @@ for i=1:size(boxes,1)
     Rf = Rx * Ry * Rz;
     
     % Translate to origin, rotate about axis, translate back
-    m = [(front_box(1,1) + ffront_boxr(3,1))/2, (front_box(1,2) + front_box(2,2))/2, (front_box(1,3) + front_box(3,3))/2];
+    m = [(front_box(1,1) + front_box(3,1))/2, (front_box(1,2) + front_box(2,2))/2, (front_box(1,3) + front_box(3,3))/2];
     front_box = front_box - m;
     front_box = front_box*Rf;
     front_box = front_box + m;
@@ -84,7 +83,7 @@ for i=1:size(boxes,1)
     carbox.back_box = back_box;
     carbox.front_box = front_box;
     img_boxes = cat(1,img_boxes,carbox);
-       
+%        
 end
 
 end
