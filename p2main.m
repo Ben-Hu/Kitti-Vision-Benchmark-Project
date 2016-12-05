@@ -16,14 +16,16 @@ boxes = process(img, model_d, -0.5);
 %showboxes(img, boxes);
 
 f = k2(1,1);
+px = size(dm,2)/2;
+py = size(dm,1)/2;
 
 [orientations, boxes] = getCars(img);
-boxes_3d = boundingBox3(boxes,dm,f);
+boxes_3d = boundingBox3(boxes,dm,f,px,py);
 pc = getPointCloud(img,dm,f);
 pcshow(pc, 'VerticalAxis','X','MarkerSize',300); hold on;
 plotBoxes3(boxes_3d);
 
-%plotBoxes2(boxes_3d,img);
+%plotBoxes2(boxes,dm,P2);
 
 
     

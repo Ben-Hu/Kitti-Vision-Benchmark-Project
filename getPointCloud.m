@@ -18,8 +18,8 @@ for i=1:size(idx,1)
     pc(i,:) = [idx(i,1),idx(i,2),depth(idx(i,1),idx(i,2))];
 end
 
-py = size(img,1)/2;
-px = size(img,2)/2;
+px = size(img,1)/2;
+py = size(img,2)/2;
 for i=1:size(pc,1)
     x = pc(i,1);
     y = pc(i,2);
