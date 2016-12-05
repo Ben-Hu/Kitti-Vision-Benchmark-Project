@@ -1,11 +1,18 @@
 clear all; close all;
 globals;
-img = double(imread(fullfile(TRAIN_ORIG_DIR,'um_000033.png')))/256;
-imgl = rgb2gray(double(imread(fullfile(TRAIN_ORIG_DIR,'um_000033.png')))/256);
-imgr = rgb2gray(double(imread(fullfile(R_TRAIN_ORIG_DIR,'um_000033.png')))/256);
+%this script will plot a 3d point cloud with 3d bounding boxes
+%as well as plotting a 2d image with road segmentation in addition to what '3d
+%bounding boxes' would appear as in the 2d plane
+
+imageName = 'um_000033.png'; %change image name to process a different image
+[~,imid,~] = fileparts(imageName);
+
+img = double(imread(fullfile(TEST_DIR,imageName)))/256;
+imgl = rgb2gray(double(imread(fullfile(TEST_DIR,imageName)))/256);
+imgr = rgb2gray(double(imread(fullfile(R_TEST_DIR,imageName)))/256);
 dispmap = disparity(imgl,imgr);
-P2 = getMatrix(TEST_CALIB_DIR,'P2','uu_000073');
-P3 = getMatrix(TEST_CALIB_DIR,'P3','uu_000073');
+P2 = getMatrix(TEST_CALIB_DIR,'P2',imid);
+P3 = getMatrix(TEST_CALIB_DIR,'P3',imid);
 [k2,r2,t2] = Krt_from_P(P2);
 [k3,r3,t3] = Krt_from_P(P3);
 dm = depthMap(dispmap,k2(1,1),abs(t3(1)-t2(1)));
@@ -21,7 +28,7 @@ py = size(dm,1)/2;
 
 [orientations, boxes] = getCars(img);
 
-% TODO: Needs pitch, roll, yaw
+%TODO: pass orientations and watch it fail
 ta = 0;
 boxes_3d = boundingBox3(boxes,dm,f,py, px,[deg2rad(ta);deg2rad(ta);deg2rad(ta)]);
 
@@ -38,8 +45,6 @@ img(:,:,1) = r;
 
 BM = boundarymask(seg);
 figure; imshow(imoverlay(img,BM,'red')); hold on;
-
-%figure; imagesc(img); axis image; hold on;
 plotBoxes2(boxes_3d,dm,P2);
 
 

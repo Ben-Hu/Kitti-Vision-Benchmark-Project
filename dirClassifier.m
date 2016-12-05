@@ -49,6 +49,10 @@ for i=1:size(label_list,1)%63:63%
 %         img_data_r = imresize(img_data, [60,120]);
         img_data_r = imresize(img_data, [104,154]);
         %[c_hog,vis] = extractHOGFeatures(img_data_r, 'NumBins', 12, 'CellSize', [8, 8], 'BlockSize', [13,19],'UseSignedOrientation', true);
+        
+        %Note: Most of the commented sections following are attempts to get
+        %a better feature vector to no avail :(
+
         %imshow(img_data_r); hold on; plot(vis);
         %GRADIENT MAG
         %log normalizes the exposure to a degree, much better results
@@ -209,7 +213,7 @@ model_11 = svmtrain(idx11,cv11,'-c 0 -t 2 -g 0.07 -c 10 -b 1');
 [cv12,idx12] = sampleData(bin12,bin1,min_bin);
 model_12 = svmtrain(idx12,cv12,'-c 0 -t 2 -g 0.07 -c 10 -b 1'); %This model_ is only for verifying bin12 items essentially 150-180d
 
-% % %Validate
+% % %Validate on training data for baseline functionality
 % for i=1:size(bin1,1)/4
 %     [svmOut1a(i),~,~] = svmpredict(1,double(bin1(1,:)),model_1,'b 1'); %Output 100%
 %     [svmOut1b(i),~,~] = svmpredict(1,double(bin1(1,:)),model_2,'b 1'); %Output 0% 100~=0 Match
@@ -226,17 +230,3 @@ model_12 = svmtrain(idx12,cv12,'-c 0 -t 2 -g 0.07 -c 10 -b 1'); %This model_ is 
 %     [svmOut3a(i),~,~] = svmpredict(1,double(bin3(1,:)),model_2,'b 1'); %Output 0%  
 %     [svmOut3b(i),~,~] = svmpredict(1,double(bin3(1,:)),model_3,'b 1'); %Output 100% 
 % end
-
-% 1 m1 1 m2 0
-% 1 m1 1 m2 0
-% 2 m1 0 m2 1
-% 3 m2 0 m3 1
-% 4 m3 0  m4 1
-% 5 m4 0 m5 1
-% 6 m5 0 m 6 1
-% 7 m6 0 m7 1
-% 8 m7 0 m8 1
-% 9 m8 0 m9 1
-% 10 m9 0 m10 1
-% 11 m10 0 m11 1
-% 12 m11 0 m 12 1

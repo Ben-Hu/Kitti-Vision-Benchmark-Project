@@ -35,6 +35,7 @@ for i=1:size(boxes,1)
     %for each corner of the box, find the world coordinates of the 
     %front face of the car, minimum depth in our mask of non-zero value
     front_Z = min(dm_car(dm_car(:)~=0));
+    guess = 0;
     if isempty(front_Z) %for exceptionally bad depth calculations,where the result is all extreme < 0
         front_Z = randsample(3:8,1); %so this doesn't crash in those cases, arbitrary 
         guess = 1;

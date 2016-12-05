@@ -1,8 +1,8 @@
 function createVid()
 % creates a video of the road segmentations with bounding boxes
-fps = 5; videoName = 'ctest.avi';
+fps = 8; videoName = 'c_all.avi';
 globals;
-imgs=dir(fullfile(TEST_DIR,'um_00000*.png'));
+imgs=dir(fullfile(TEST_DIR,'*.png'));
 
 writerObj = VideoWriter(videoName);
 writerObj.FrameRate = fps;
