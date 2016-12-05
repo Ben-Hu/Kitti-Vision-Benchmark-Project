@@ -1,5 +1,6 @@
 function plotBoxes3(img_boxes)
 %Plots all 3d bounding boxes given input struct from boundingBox3
+%for plotting on an open point cloud figure
 %Input: struct output from boundingBox3 function
     for i=1:size(img_boxes,1)
         cur_obj = img_boxes(i);
