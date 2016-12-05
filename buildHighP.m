@@ -21,8 +21,8 @@ while(error < errorThresh)
     % iterate load a random sample of images, 
     for i=1:numel(index)
         % fiddle with the image to make it processable
-        segmented = double((imread([pathToSegmented, segmentedFiles(index(i)).name])));
-%         segmented = rgb2gray(segmented/255);
+        segmented = double((imread([pathToSegmented,'/', segmentedFiles(index(i)).name])));
+        segmented = rgb2gray(segmented/255);
         segmented = segmented(1:im_siz(1),1:im_siz(2));
         rPixVal = max(reshape(segmented,1,[]));
         segmented = segmented(:,:) >= rPixVal;
@@ -43,6 +43,9 @@ while(error < errorThresh)
 
 end
 
+%     imagesc(highP); colormap gray;
+
+% figure;imagesc(highP);axis image; colormap gray;
 
 end
 

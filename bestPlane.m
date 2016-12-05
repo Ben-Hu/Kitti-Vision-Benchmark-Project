@@ -1,4 +1,4 @@
-function [ best, curError ] = bestPlaneForBox( depth, segmented, highP)
+function [ best, curError ] = bestPlane( depth, segmented, highP)
 %BESTPLANEFORBOX 
 im_siz = [360,1220];
 
@@ -27,7 +27,6 @@ im_siz = [360,1220];
     curError = inf;
     % perform RANSAC on random 3 points
     for i=1:itermax
-
 
         % grab 3 random indeces
         randIx = randperm(numel(onesX), 3);
