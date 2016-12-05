@@ -72,7 +72,7 @@ for i=1:size(boxes,1)
     end
     
     a = 0;%direction(i);
-    b = direction(i);
+    b = 0;%direction(i);
     c = 0;%direction(i);
     Rx = [1,0,0;0,cos(a),-sin(a);0,sin(a),cos(a)]; %roll
     Ry = [cos(b),0,sin(b);0,1,0;-sin(b),0,cos(b)]; %pitch -- this + angle of orientation

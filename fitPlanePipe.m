@@ -6,7 +6,6 @@ globals;
 % load the model
 load('um_lbp_model.mat');
 
-
 % TODO: add seg dir to globals
 % highPMap = buildHighP('segResults/');
 highP = buildHighP(TRAIN_SEG_DIR);

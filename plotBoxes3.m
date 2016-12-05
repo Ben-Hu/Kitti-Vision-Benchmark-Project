@@ -30,7 +30,7 @@ function plotBoxes3(img_boxes)
         zbp = zb * ones(1,5);
         %figure; hold on;
         plot3(xp,yp,zfp,'r','LineWidth',2);
-        plot3(xp,yp,zbp,'r','LineWidth',2);
+        plot3(xp,yp,zbp,'b','LineWidth',2);
         plot3(cx1,cy1,cz1,'r','LineWidth',2);
         plot3(cx2,cy2,cz2,'r','LineWidth',2);
         plot3(cx3,cy3,cz3,'r','LineWidth',2);
