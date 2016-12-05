@@ -2,31 +2,6 @@ function plotBoxes2(boxes_3d, dm, P)
 %Plots all 3d bounding boxes given input struct from boundingBox3
 %Input: struct output from boundingBox3 function
 
-% clear all; close all;
-% globals;
-% img = double(imread(fullfile(TRAIN_ORIG_DIR,'um_000033.png')))/256;
-% imgl = rgb2gray(double(imread(fullfile(TRAIN_ORIG_DIR,'um_000033.png')))/256);
-% imgr = rgb2gray(double(imread(fullfile(R_TRAIN_ORIG_DIR,'um_000033.png')))/256);
-% dispmap = disparity(imgl,imgr);
-% P2 = getMatrix(TEST_CALIB_DIR,'P2','um_000073');
-% P3 = getMatrix(TEST_CALIB_DIR,'P3','um_000073');
-% [k2,r2,t2] = Krt_from_P(P2);
-% [k3,r3,t3] = Krt_from_P(P3);
-% dm = depthMap(dispmap,k2(1,1),abs(t3(1)-t2(1)));
-% data = load('dpm/VOC2010/car_final.mat');
-% model_d = data.model;
-% boxes = process(img, model_d, -0.5);
-% P = P2;
-% %have boxes, dm, P
-% 
-% [k,r,t] = Krt_from_P(P);
-% f = k(1,1);
-% px = size(dm,1)/2;
-% py = size(dm,2)/2;
-% boxes_3d = boundingBox3(boxes,dm,f,px,py,0,0,0);
-% %figure; imagesc(img); axis image; hold on;
-% f = figure('visible', 'off');imagesc(img); axis image; hold on;
-
 [k,r,t] = Krt_from_P(P);
 f = k(1,1);
 px = size(dm,1)/2;
@@ -66,18 +41,18 @@ for i=1:size(boxes_3d,1)
    
     xpb = [x1b,x2b,x2b,x1b,x1b];
     ypb = [y1b,y1b,y2b,y2b,y1b];
-    plot(ypb,xpb,'g','LineWidth',2);
+    plot(ypb,xpb,'b','LineWidth',4);
     
     xp = [x1,x2,x2,x1,x1];
     yp = [y1,y1,y2,y2,y1];
-    plot(yp,xp,'r','LineWidth',2);
+    plot(yp,xp,'g','LineWidth',4);
 
-    plot([y1,y1b],[x1,x1b],'r','LineWidth',2);
-    plot([y2,y2b],[x1,x1b],'r','LineWidth',2);
-    plot([y1,y1b],[x2,x2b],'r','LineWidth',2);
-    plot([y2,y2b],[x2,x2b],'r','LineWidth',2);
-    fontsize = 10;
-    text(double(y1),double(x1)+fontsize/2,sprintf('Car-%d',i), 'Color','r','FontSize',fontsize,'FontWeight','bold');
+    plot([y1,y1b],[x1,x1b],'g','LineWidth',4);
+    plot([y2,y2b],[x1,x1b],'g','LineWidth',4);
+    plot([y1,y1b],[x2,x2b],'g','LineWidth',4);
+    plot([y2,y2b],[x2,x2b],'g','LineWidth',4);
+    fontsize = 15;
+    text(double(y1),double(x1)+fontsize/2,sprintf('Car-%d',i), 'Color','g','FontSize',fontsize,'FontWeight','bold');
 end
 
 

@@ -1,7 +1,7 @@
 function[] = createVid(model, fps, videoName)
 % creates a video of the road segmentations with bounding boxes
 globals;
-imgs=dir(fullfile(TEST_DIR,'*.png'));
+imgs=dir(fullfile(TEST_DIR,'00000*.png'));
 
 writerObj = VideoWriter(videoName);
 writerObj.FrameRate = fps;
@@ -16,7 +16,7 @@ for i=1:numel(imgs)
     imgr = imgr(1:360,1:1220,:);
     
     seg = segRoad(img, model);
-    BM = boundarymask(rgb2gray(seg));
+    BM = boundarymask(seg);
     figure('visible', 'off'); imshow(imoverlay(img+seg,BM,'red'))%,'InitialMagnification',67)
     
     [~,idx,~] = fileparts(imgs(i).name);

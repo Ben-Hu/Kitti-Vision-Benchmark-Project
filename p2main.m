@@ -22,14 +22,24 @@ py = size(dm,1)/2;
 [orientations, boxes] = getCars(img);
 
 % TODO: Needs pitch, roll, yaw
-boxes_3d = boundingBox3(boxes,dm,f,py, px,[deg2rad(90);deg2rad(90);deg2rad(90)]);
+ta = 0;
+boxes_3d = boundingBox3(boxes,dm,f,py, px,[deg2rad(ta);deg2rad(ta);deg2rad(ta)]);
 
-%pc = getPointCloud(img,dm,f);
-%pcshow(pc, 'VerticalAxis','X','MarkerSize',300); hold on;
-%plotBoxes3(boxes_3d);
+pc = getPointCloud(img,dm,f);
+pcshow(pc, 'VerticalAxis','X','MarkerSize',300); hold on;
+plotBoxes3(boxes_3d);
 
+smodel = load('umall_lbp_model.mat');
+smodel = smodel.model;
+seg = segRoad(img, smodel);
+r = img(:,:,1);
+r(seg) = 1;
+img(:,:,1) = r;
 
-figure; imagesc(img); axis image; hold on;
+BM = boundarymask(seg);
+figure; imshow(imoverlay(img,BM,'red')); hold on;
+
+%figure; imagesc(img); axis image; hold on;
 plotBoxes2(boxes_3d,dm,P2);
 
 
