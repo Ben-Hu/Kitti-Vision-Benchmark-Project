@@ -1,6 +1,4 @@
-function [img_boxes]=boundingBox3(boxes,dm,f)
-py = size(dm,1)/2;
-px = size(dm,2)/2;
+function [img_boxes]=boundingBox3(boxes,dm,f,px,py)
 
 img_boxes = [];
 for i=1:size(boxes,1)
