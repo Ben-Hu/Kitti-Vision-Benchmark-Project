@@ -34,7 +34,7 @@ highP = buildHighP(TRAIN_SEG_DIR);
         
     [normal, error] = bestPlane(depth, rdSeg, highP);
     
-    [sliced, remaining] = slicePlane(pc_o, normal);
+    [sliced, remaining] = slicePlane(pc_o, normal, rdSeg);
     
     pcshow(sliced, 'MarkerSize',200);
 end

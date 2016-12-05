@@ -43,9 +43,6 @@ while(error < errorThresh)
 
 end
 
-%     imagesc(highP); colormap gray;
-
-% figure;imagesc(highP);axis image; colormap gray;
 
 end
 
