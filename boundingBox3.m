@@ -60,29 +60,35 @@ for i=1:size(boxes,1)
         back_box(j,2) = new_y;
     end
     
-    a = 0
-    b = direction(i)
-    c = 0;
+    a = 0;%direction(i);
+    b = direction(i);
+    c = 0;%direction(i);
     Rx = [1,0,0;0,cos(a),-sin(a);0,sin(a),cos(a)]; %roll
     Ry = [cos(b),0,sin(b);0,1,0;-sin(b),0,cos(b)]; %pitch -- this + angle of orientation
     Rz = [cos(c),-sin(c),0;sin(c),cos(c),0;0,0,1]; %yaw
     Rf = Rx * Ry * Rz;
     
-    % Translate to origin, rotate about axis, translate back
+    %Translate to origin, rotate about axis, translate back
     m = [(front_box(1,1) + front_box(3,1))/2, (front_box(1,2) + front_box(2,2))/2, (front_box(1,3) + front_box(3,3))/2];
     mb = [(back_box(1,1) + back_box(3,1))/2, (back_box(1,2) + back_box(2,2))/2, (back_box(1,3) + back_box(3,3))/2];
-    front_box = front_box - m;
-    back_box = back_box - mb;
-    %each row needs to be rotated individually (each point)
-    for j=1:size(back_box,1)
-        fp = Rf * front_box(j,:)';
-        front_box(j,:) = fp';
-        bp = Rf * back_box(j,:)';
-        back_box(j,:) = bp';
-    end
-    front_box = front_box + m;
-    back_box = back_box + mb;
+%     front_box = front_box - m;
+%     back_box = back_box - mb;
+%     %each row needs to be rotated individually (each point)
+%     for j=1:size(back_box,1)
+%         fp = Rf * front_box(j,:)';
+%         front_box(j,:) = fp';
+%         bp = Rf * back_box(j,:)';
+%         back_box(j,:) = bp';
+%     end
+%     front_box = front_box + m;
+%     back_box = back_box + mb;
 
+    front_box = front_box - m;
+    front_box = front_box*Rf;
+    front_box = front_box + m;
+    back_box = back_box - m;
+    back_box = back_box*Rf;
+    back_box = back_box + m;
 
     carbox.back_box = back_box;
     carbox.front_box = front_box;

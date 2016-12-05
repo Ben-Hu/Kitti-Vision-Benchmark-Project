@@ -22,13 +22,15 @@ py = size(dm,1)/2;
 [orientations, boxes] = getCars(img);
 
 % TODO: Needs pitch, roll, yaw
-boxes_3d = boundingBox3(boxes,dm,f,px, py, 0,0,0);
+boxes_3d = boundingBox3(boxes,dm,f,py, px,[deg2rad(90);deg2rad(90);deg2rad(90)]);
 
-pc = getPointCloud(img,dm,f);
-pcshow(pc, 'VerticalAxis','X','MarkerSize',300); hold on;
-plotBoxes3(boxes_3d);
+%pc = getPointCloud(img,dm,f);
+%pcshow(pc, 'VerticalAxis','X','MarkerSize',300); hold on;
+%plotBoxes3(boxes_3d);
 
-%plotBoxes2(boxes,dm,P2);
+
+figure; imagesc(img); axis image; hold on;
+plotBoxes2(boxes_3d,dm,P2);
 
 
     
