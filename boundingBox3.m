@@ -45,7 +45,7 @@ for i=1:size(boxes,1)
         x = front_box(j,1);
         y = front_box(j,2);
         fprintf('%d',j);
-        Z = front_box(j,3)
+        Z = front_box(j,3);
         new_y = Z * ((y - py)/f);
         new_x = Z * ((x - px)/f);
         front_box(j,1) = new_x;
