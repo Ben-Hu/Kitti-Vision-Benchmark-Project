@@ -70,14 +70,19 @@ for i=1:size(boxes,1)
     
     % Translate to origin, rotate about axis, translate back
     m = [(front_box(1,1) + front_box(3,1))/2, (front_box(1,2) + front_box(2,2))/2, (front_box(1,3) + front_box(3,3))/2];
-    front_box = front_box - m;
-    front_box = front_box*Rf;
-    front_box = front_box + m;
-
     mb = [(back_box(1,1) + back_box(3,1))/2, (back_box(1,2) + back_box(2,2))/2, (back_box(1,3) + back_box(3,3))/2];
-    back_box = back_box - m;
-    back_box = back_box*Rf;
-    back_box = back_box + m;
+    front_box = front_box - m;
+    back_box = back_box - mb;
+    %each row needs to be rotated individually (each point)
+    for j=1:size(back_box,1)
+        fp = Rf * front_box(j,:)';
+        front_box(j,:) = fp';
+        bp = Rf * back_box(j,:)';
+        back_box(j,:) = bp';
+    end
+    front_box = front_box + m;
+    back_box = back_box + mb;
+
 
     carbox.back_box = back_box;
     carbox.front_box = front_box;
