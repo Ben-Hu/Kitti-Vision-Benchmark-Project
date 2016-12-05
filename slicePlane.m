@@ -1,6 +1,6 @@
 function [ slicedPC, remainingPC ] = slicePlane( pointCloud, normal)
-maxDistance = 5;
-maxAngularDistance = 5;
+maxDistance = 2;
+maxAngularDistance = 100;
 
 [model1,inlierIndices,outlierIndices] = pcfitplane(pointCloud,...
             maxDistance,normal,maxAngularDistance);
