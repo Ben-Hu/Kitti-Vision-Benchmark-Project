@@ -31,9 +31,11 @@ function [classified]=segRoad(img,model)
         pix_box = img(x_min:x_max, y_min:y_max);
         squished = imresize(pix_box, [20,20]);
         box_hog = extractHOGFeatures(squished,'NumBins', 9, 'CellSize', [6, 6]);
-
+        %local binary patterns for texture
+        lbp = extractLBPFeatures(squished, 'NumNeighbors', 12);
         %Put together the descriptor for this superpixel
-        feat_vec = cat(2, hist_r, hist_g, hist_b, box_hog);
+        feat_vec = cat(2, hist_r, hist_g, hist_b, box_hog, lbp);
+        
         normFactor = max(abs(feat_vec));
         pred_vec = double(feat_vec/normFactor);
 
