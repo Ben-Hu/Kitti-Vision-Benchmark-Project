@@ -39,7 +39,7 @@ function vectarrow(p0,p1)
           hw = [z1-alpha*p(3);z1;z1-alpha*p(3)];
           
           hold on
-          plot3(hu(:),hv(:),hw(:))  % Plot arrow head
+          plot3(hu(:),hv(:),hw(:),'LineWidth', 5)  % Plot arrow head
           grid on
           xlabel('x')
           ylabel('y')
@@ -64,7 +64,7 @@ function vectarrow(p0,p1)
           hv = [y1-alpha*(p(2)-beta*(p(1)+eps)); y1; y1-alpha*(p(2)+beta*(p(1)+eps))];
           
           hold on
-          plot(hu(:),hv(:))  % Plot arrow head
+          plot(hu(:),hv(:),'LineWidth', 5)  % Plot arrow head
           grid on
           xlabel('x')
           ylabel('y')
