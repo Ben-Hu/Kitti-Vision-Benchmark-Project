@@ -35,19 +35,29 @@ for i=1:size(boxes,1)
     %for each corner of the box, find the world coordinates of the 
     %front face of the car, minimum depth in our mask of non-zero value
     front_Z = min(dm_car(dm_car(:)~=0));
+    if isempty(front_Z) %for exceptionally bad depth calculations,where the result is all extreme < 0
+        front_Z = randsample(3:8,1); %so this doesn't crash in those cases, arbitrary 
+        guess = 1;
+    end
     front_box = [x1,y1,front_Z;x1,y2,front_Z;...
     x2,y1,front_Z;x2,y2,front_Z];
     for j=1:size(front_box,1)
         x = front_box(j,1);
         y = front_box(j,2);
-        Z = front_box(j,3);
+        fprintf('%d',j);
+        Z = front_box(j,3)
         new_y = Z * ((y - py)/f);
         new_x = Z * ((x - px)/f);
         front_box(j,1) = new_x;
         front_box(j,2) = new_y;
     end
     
-    back_Z = min(max(dm_car(:)),front_Z+5);
+    %In bad cases, above, back_Z will be completely, wrong.
+    if guess ~= 1
+        back_Z = min(max(dm_car(:)),front_Z+5);
+    else
+        back_Z = front_Z + 5;
+    end
     back_box = [x1,y1,back_Z;x1,y2,back_Z;...
     x2,y1,back_Z;x2,y2,back_Z];
     for j=1:size(back_box,1)
