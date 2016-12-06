@@ -1,8 +1,12 @@
 # Road and Object Detection 
 Dependencies:
+
 dpm-https://people.eecs.berkeley.edu/~rbg/latent/
+
 libsvm-http://www.csie.ntu.edu.tw/~cjlin/libsvm/
+
 spsstereo-http://ttic.uchicago.edu/~dmcallester/SPS/ (optional, can CV toolbox disparity)
+
 Matlab Computer Vision Toolbox
 
 To Run:
