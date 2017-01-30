@@ -1,0 +1,2 @@
+PASS: pngvalid --strict --standard (floating point arithmetic)
+PASS tests/pngvalid-standard (exit status: 0)

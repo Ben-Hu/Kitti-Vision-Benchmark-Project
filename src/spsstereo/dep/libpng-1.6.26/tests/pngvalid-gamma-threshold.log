@@ -1,0 +1,2 @@
+PASS: pngvalid --strict --gamma-threshold (floating point arithmetic)
+PASS tests/pngvalid-gamma-threshold (exit status: 0)

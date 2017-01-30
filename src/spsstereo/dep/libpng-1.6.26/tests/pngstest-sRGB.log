@@ -1,0 +1,23 @@
+PASS: ./contrib/testpngs/gray-1-sRGB-tRNS.png
+PASS: ./contrib/testpngs/gray-1-sRGB.png
+PASS: ./contrib/testpngs/gray-16-sRGB-tRNS.png
+PASS: ./contrib/testpngs/gray-16-sRGB.png
+PASS: ./contrib/testpngs/gray-2-sRGB-tRNS.png
+PASS: ./contrib/testpngs/gray-2-sRGB.png
+PASS: ./contrib/testpngs/gray-4-sRGB-tRNS.png
+PASS: ./contrib/testpngs/gray-4-sRGB.png
+PASS: ./contrib/testpngs/gray-8-sRGB-tRNS.png
+PASS: ./contrib/testpngs/gray-8-sRGB.png
+PASS: ./contrib/testpngs/palette-1-sRGB-tRNS.png
+PASS: ./contrib/testpngs/palette-1-sRGB.png
+PASS: ./contrib/testpngs/palette-2-sRGB-tRNS.png
+PASS: ./contrib/testpngs/palette-2-sRGB.png
+PASS: ./contrib/testpngs/palette-4-sRGB-tRNS.png
+PASS: ./contrib/testpngs/palette-4-sRGB.png
+PASS: ./contrib/testpngs/palette-8-sRGB-tRNS.png
+PASS: ./contrib/testpngs/palette-8-sRGB.png
+PASS: ./contrib/testpngs/rgb-16-sRGB-tRNS.png
+PASS: ./contrib/testpngs/rgb-16-sRGB.png
+PASS: ./contrib/testpngs/rgb-8-sRGB-tRNS.png
+PASS: ./contrib/testpngs/rgb-8-sRGB.png
+PASS tests/pngstest-sRGB (exit status: 0)

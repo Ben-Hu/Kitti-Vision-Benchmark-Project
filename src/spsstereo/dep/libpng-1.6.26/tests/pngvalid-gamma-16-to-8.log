@@ -1,0 +1,6 @@
+
+Gamma correction with 16 to 8 bit reduction:
+ 16 bit gray:  1.97052
+ 16 bit color: 1.97052
+PASS: pngvalid --strict --gamma-16-to-8 (floating point arithmetic)
+PASS tests/pngvalid-gamma-16-to-8 (exit status: 0)

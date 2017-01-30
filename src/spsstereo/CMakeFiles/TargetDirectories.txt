@@ -1,0 +1,3 @@
+/Users/Ben/Desktop/git/csc420-project/spsstereo/CMakeFiles/rebuild_cache.dir
+/Users/Ben/Desktop/git/csc420-project/spsstereo/CMakeFiles/edit_cache.dir
+/Users/Ben/Desktop/git/csc420-project/spsstereo/CMakeFiles/spsstereo.dir

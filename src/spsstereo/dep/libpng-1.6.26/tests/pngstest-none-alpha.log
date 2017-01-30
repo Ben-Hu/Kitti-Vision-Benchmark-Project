@@ -1,0 +1,5 @@
+PASS: ./contrib/testpngs/gray-alpha-16.png
+PASS: ./contrib/testpngs/gray-alpha-8.png
+PASS: ./contrib/testpngs/rgb-alpha-16.png
+PASS: ./contrib/testpngs/rgb-alpha-8.png
+PASS tests/pngstest-none-alpha (exit status: 0)

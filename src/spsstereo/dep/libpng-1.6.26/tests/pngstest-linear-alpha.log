@@ -1,0 +1,5 @@
+PASS: ./contrib/testpngs/gray-alpha-16-linear.png
+PASS: ./contrib/testpngs/gray-alpha-8-linear.png
+PASS: ./contrib/testpngs/rgb-alpha-16-linear.png
+PASS: ./contrib/testpngs/rgb-alpha-8-linear.png
+PASS tests/pngstest-linear-alpha (exit status: 0)

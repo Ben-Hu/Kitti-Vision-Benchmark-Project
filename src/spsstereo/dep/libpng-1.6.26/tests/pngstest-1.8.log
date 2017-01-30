@@ -1,0 +1,23 @@
+PASS: ./contrib/testpngs/gray-1-1.8-tRNS.png
+PASS: ./contrib/testpngs/gray-1-1.8.png
+PASS: ./contrib/testpngs/gray-16-1.8-tRNS.png
+PASS: ./contrib/testpngs/gray-16-1.8.png
+PASS: ./contrib/testpngs/gray-2-1.8-tRNS.png
+PASS: ./contrib/testpngs/gray-2-1.8.png
+PASS: ./contrib/testpngs/gray-4-1.8-tRNS.png
+PASS: ./contrib/testpngs/gray-4-1.8.png
+PASS: ./contrib/testpngs/gray-8-1.8-tRNS.png
+PASS: ./contrib/testpngs/gray-8-1.8.png
+PASS: ./contrib/testpngs/palette-1-1.8-tRNS.png
+PASS: ./contrib/testpngs/palette-1-1.8.png
+PASS: ./contrib/testpngs/palette-2-1.8-tRNS.png
+PASS: ./contrib/testpngs/palette-2-1.8.png
+PASS: ./contrib/testpngs/palette-4-1.8-tRNS.png
+PASS: ./contrib/testpngs/palette-4-1.8.png
+PASS: ./contrib/testpngs/palette-8-1.8-tRNS.png
+PASS: ./contrib/testpngs/palette-8-1.8.png
+PASS: ./contrib/testpngs/rgb-16-1.8-tRNS.png
+PASS: ./contrib/testpngs/rgb-16-1.8.png
+PASS: ./contrib/testpngs/rgb-8-1.8-tRNS.png
+PASS: ./contrib/testpngs/rgb-8-1.8.png
+PASS tests/pngstest-1.8 (exit status: 0)

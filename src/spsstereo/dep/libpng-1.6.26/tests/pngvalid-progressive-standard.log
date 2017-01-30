@@ -1,0 +1,2 @@
+PASS: pngvalid --strict --standard --progressive-read (floating point arithmetic)
+PASS tests/pngvalid-progressive-standard (exit status: 0)

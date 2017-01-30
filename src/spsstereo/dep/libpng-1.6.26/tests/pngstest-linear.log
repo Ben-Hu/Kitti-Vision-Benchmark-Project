@@ -1,0 +1,23 @@
+PASS: ./contrib/testpngs/gray-1-linear-tRNS.png
+PASS: ./contrib/testpngs/gray-1-linear.png
+PASS: ./contrib/testpngs/gray-16-linear-tRNS.png
+PASS: ./contrib/testpngs/gray-16-linear.png
+PASS: ./contrib/testpngs/gray-2-linear-tRNS.png
+PASS: ./contrib/testpngs/gray-2-linear.png
+PASS: ./contrib/testpngs/gray-4-linear-tRNS.png
+PASS: ./contrib/testpngs/gray-4-linear.png
+PASS: ./contrib/testpngs/gray-8-linear-tRNS.png
+PASS: ./contrib/testpngs/gray-8-linear.png
+PASS: ./contrib/testpngs/palette-1-linear-tRNS.png
+PASS: ./contrib/testpngs/palette-1-linear.png
+PASS: ./contrib/testpngs/palette-2-linear-tRNS.png
+PASS: ./contrib/testpngs/palette-2-linear.png
+PASS: ./contrib/testpngs/palette-4-linear-tRNS.png
+PASS: ./contrib/testpngs/palette-4-linear.png
+PASS: ./contrib/testpngs/palette-8-linear-tRNS.png
+PASS: ./contrib/testpngs/palette-8-linear.png
+PASS: ./contrib/testpngs/rgb-16-linear-tRNS.png
+PASS: ./contrib/testpngs/rgb-16-linear.png
+PASS: ./contrib/testpngs/rgb-8-linear-tRNS.png
+PASS: ./contrib/testpngs/rgb-8-linear.png
+PASS tests/pngstest-linear (exit status: 0)
